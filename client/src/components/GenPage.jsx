@@ -1,7 +1,7 @@
-import React from 'react'
-import PageSwitch from './PageSwitch'
-import SubPageSwitch from './SubPageSwitch'
-import PageContent from './pageContent'
+import React from "react";
+import PageSwitch from "./PageSwitch";
+import SubPageSwitch from "./SubPageSwitch";
+import PageContent from "./PageContent";
 
 const GenPage = () => {
   return (
@@ -10,7 +10,7 @@ const GenPage = () => {
       <SubPageSwitch />
       <PageContent />
     </div>
-  )
-}
+  );
+};
 
-export default GenPage
+export default GenPage;
