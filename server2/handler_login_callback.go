@@ -6,7 +6,6 @@ import (
 	"net/http"
 )
 
-
 func (cfg *apiConfig) handlerLoginCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	if code == "" {

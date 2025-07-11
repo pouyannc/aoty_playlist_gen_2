@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/go-rod/rod"
+	"github.com/go-rod/rod/lib/launcher"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
@@ -15,9 +17,9 @@ import (
 
 type apiConfig struct {
 	oauthConfig *oauth2.Config
-	store *sessions.CookieStore
+	store       *sessions.CookieStore
+	browser     *rod.Browser
 }
-
 
 func main() {
 	err := godotenv.Load(".env")
@@ -27,13 +29,13 @@ func main() {
 	port := os.Getenv("PORT")
 
 	oauthConfig := &oauth2.Config{
-		ClientID: os.Getenv("SPOTIFY_CLIENT_ID"),
+		ClientID:     os.Getenv("SPOTIFY_CLIENT_ID"),
 		ClientSecret: os.Getenv("SPOTIFY_CLIENT_SECRET"),
-		RedirectURL: os.Getenv("REDIRECT_URL"),
-		Scopes: []string{"playlist-modify-public"},
-		Endpoint: spotify.Endpoint,
+		RedirectURL:  os.Getenv("REDIRECT_URL"),
+		Scopes:       []string{"playlist-modify-public"},
+		Endpoint:     spotify.Endpoint,
 	}
-	
+
 	store := sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 	store.Options = &sessions.Options{
 		Path:     "/",
@@ -42,9 +44,21 @@ func main() {
 		SameSite: http.SameSiteLaxMode,
 	}
 
+	u := launcher.
+		NewUserMode().
+		Headless(true).
+		Leakless(true).
+		UserDataDir("tmp/t").
+		Set("disable-default-apps").
+		Set("no-first-run").
+		MustLaunch()
+	browser := rod.New().ControlURL(u).MustConnect()
+	defer browser.MustClose()
+
 	cfg := apiConfig{
 		oauthConfig: oauthConfig,
-		store: store,
+		store:       store,
+		browser:     browser,
 	}
 
 	r := mux.NewRouter()
@@ -52,7 +66,9 @@ func main() {
 	r.HandleFunc("/api/login/refresh", cfg.handlerRefreshLogin).Methods("GET")
 	r.HandleFunc("/api/login", cfg.handlerLogin).Methods("GET")
 	r.HandleFunc("/api/login/callback", cfg.handlerLoginCallback).Methods("GET")
-	r.HandleFunc("/api/auth/tokens",  cfg.handlerAuthTokens).Methods("GET")
+	r.HandleFunc("/api/auth/tokens", cfg.handlerAuthTokens).Methods("GET")
+
+	r.HandleFunc("/api/albums/covers", cfg.handlerAlbumCovers).Methods("GET")
 
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173"}, // React dev server

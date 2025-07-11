@@ -14,7 +14,10 @@ const getCoverArts = async (q) => {
     type,
   } = q;
   const res = await axios.get(
-    `${serverUrl}?access_token=${accessToken}&scrape_url=${scrapeUrl}&nr_tracks=${nrOfTracks}&tracks_per=${tracksPerAlbum}&return_type=${returnType}&type=${type}`
+    `${serverUrl}/albums/covers?scrape_url=${scrapeUrl}&type=${type}`,
+    {
+      withCredentials: true,
+    }
   );
   return res.data;
 };

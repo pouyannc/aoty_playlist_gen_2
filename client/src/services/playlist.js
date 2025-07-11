@@ -14,7 +14,10 @@ const getTracklist = async (q) => {
     returnType,
   } = q;
   const res = await axios.get(
-    `${serverUrl}/tracklist?access_token=${accessToken}&scrape_url=${scrapeUrl}&nr_tracks=${nrOfTracks}&tracks_per=${tracksPerAlbum}&type=${type}&return_type=${returnType}`
+    `${serverUrl}/tracklist?access_token=${accessToken}&scrape_url=${scrapeUrl}&nr_tracks=${nrOfTracks}&tracks_per=${tracksPerAlbum}&type=${type}&return_type=${returnType}`,
+    {
+      withCredentials: true,
+    }
   );
   return res.data;
 };
