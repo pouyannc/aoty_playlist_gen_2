@@ -13,8 +13,11 @@ const getCoverArts = async (q) => {
     returnType,
     type,
   } = q;
+
   const res = await axios.get(
-    `${serverUrl}/albums/covers?scrape_url=${scrapeUrl}&type=${type}`,
+    `${serverUrl}/albums/covers?scrape_url=${scrapeUrl}&type=${
+      type.split("/")[0]
+    }`,
     {
       withCredentials: true,
     }
