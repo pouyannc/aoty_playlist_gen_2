@@ -69,6 +69,7 @@ func main() {
 	r.HandleFunc("/api/auth/tokens", cfg.handlerAuthTokens).Methods("GET")
 
 	r.HandleFunc("/api/albums/covers", cfg.handlerAlbumCovers).Methods("GET")
+	r.HandleFunc("/api/albums/playlist", cfg.handlerPlaylist).Methods("POST")
 
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173"}, // React dev server

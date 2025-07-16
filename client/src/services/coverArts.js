@@ -5,14 +5,7 @@ const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 const getCoverArts = async (q) => {
   await refreshSessionIfNeeded();
-  const {
-    accessToken,
-    scrapeUrl,
-    tracksPerAlbum,
-    nrOfTracks,
-    returnType,
-    type,
-  } = q;
+  const { scrapeUrl, type } = q;
 
   const res = await axios.get(
     `${serverUrl}/albums/covers?scrape_url=${scrapeUrl}&type=${
