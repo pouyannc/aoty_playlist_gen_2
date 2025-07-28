@@ -60,6 +60,7 @@ const OptionsForm = () => {
     dispatch(setPlaylistId(playlistID));
     // dispatch(setGeneratedNrOfTracks(tracklist.length));
     dispatch(setRetrievingFalse());
+    dispatch(setGeneratedNrOfTracks(1));
   };
 
   const handleGenreChange = (e) => {

@@ -1,4 +1,3 @@
-import React from "react";
 import PageSwitch from "./PageSwitch";
 import SubPageSwitch from "./SubPageSwitch";
 import PageContent from "./PageContent";

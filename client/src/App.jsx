@@ -1,7 +1,4 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getUID } from "./reducers/userReducer";
-import { setTokens } from "./services/user";
+import { useSelector } from "react-redux";
 import { Route, Routes } from "react-router-dom";
 import { Container } from "@mui/material";
 import Nav from "./components/Nav";
@@ -12,18 +9,6 @@ import AuthCallback from "./components/AuthCallback";
 
 function App() {
   const uid = useSelector(({ user }) => user.spotifyUID);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    let accessToken = localStorage.getItem("access");
-    let refreshToken = localStorage.getItem("refresh");
-
-    if (accessToken && refreshToken) {
-      setTokens(accessToken, refreshToken);
-    }
-
-    accessToken && dispatch(getUID());
-  }, []);
 
   return (
     <Routes>
