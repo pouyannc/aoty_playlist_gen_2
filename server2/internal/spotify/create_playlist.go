@@ -41,12 +41,12 @@ func CreatePlaylist(trackURIs []string, token, uid, playlistName string) (string
 
 	fmt.Println("Created playlist ===================")
 
-	playlistID, err := PopulatePlaylist(trackURIs, newPlaylist.ID, token)
+	err = PopulatePlaylist(trackURIs, newPlaylist.ID, token)
 	if err != nil {
 		return "", err
 	}
 
 	fmt.Println("Populated playlist ===================")
 
-	return playlistID, nil
+	return newPlaylist.ID, nil
 }

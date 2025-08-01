@@ -64,6 +64,7 @@ func (cfg *apiConfig) handlerAlbumCovers(w http.ResponseWriter, r *http.Request)
 			params.scrapeURL = string(fullUrl.String())
 		}
 	}
+	fmt.Printf("Opened pages in: %v", time.Since(startTime))
 
 	albums, _ := scrape.ScrapeAlbums(pages, params.filter, nrCovers)
 	fmt.Printf("Scraped in: %v", time.Since(startTime))

@@ -15,6 +15,7 @@ const getTracklist = async (q) => {
       withCredentials: true,
     }
   );
+  console.log(res.data);
   return res.data;
 };
 
