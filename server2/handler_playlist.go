@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 	"strconv"
-	"time"
 
 	"github.com/go-rod/rod"
 	"github.com/go-rod/stealth"
@@ -58,34 +56,20 @@ func (cfg *apiConfig) handlerPlaylist(w http.ResponseWriter, r *http.Request) {
 
 	nAlbums := (qParams.nTracks / qParams.tracksPerAlbum) + 1
 
-	nPages := 1
-	switch qParams.filter {
-	case "months":
-		nPages = 4
-	case "years":
-		nPages = 3
+	allScrapeURLs, err := scrape.CreateAllScrapeURLs(qParams.scrapeURL, qParams.filter)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "failed to create scrape urls", err)
+		return
 	}
 
-	pages := make([]*rod.Page, nPages)
+	var pages []*rod.Page
 
-	for i := 0; i < nPages; i++ {
+	for _, url := range allScrapeURLs {
 		fmt.Println("---- opening new page...")
 		page := stealth.MustPage(cfg.browser)
 		defer page.MustClose()
-		page.MustNavigate(qParams.scrapeURL)
-		pages[i] = page
-
-		if nPages > 1 {
-			err := page.Timeout(5*time.Second).WaitElementsMoreThan(".prev", 0)
-			if err != nil {
-				respondWithError(w, http.StatusInternalServerError, "Failed to load albums page", err)
-				return
-			}
-
-			baseURL, _ := url.Parse(page.MustInfo().URL)
-			fullUrl, _ := baseURL.Parse(*page.MustElement(`a:has(div.prev)`).MustAttribute("href"))
-			qParams.scrapeURL = string(fullUrl.String())
-		}
+		page.MustNavigate(url)
+		pages = append(pages, page)
 	}
 
 	albums, _ := scrape.ScrapeAlbums(pages, qParams.filter, nAlbums)

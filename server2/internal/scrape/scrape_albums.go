@@ -15,29 +15,53 @@ type Album struct {
 
 func ScrapeAlbums(albumsPages []*rod.Page, filter string, nrAlbums int) ([]Album, error) {
 	fmt.Println("in scrape function")
-	var albumElements []rod.Elements
-	for _, page := range albumsPages {
-		err := page.Timeout(3*time.Second).WaitElementsMoreThan(".albumBlock", 0)
+	startTime := time.Now()
+	nPages := len(albumsPages)
+	albumElements := make([]rod.Elements, nPages)
+	totalElements := 0
+
+	nErr := 0
+	for i, page := range albumsPages {
+		err := page.Timeout(800*time.Millisecond).WaitElementsMoreThan(".albumBlock", 0)
 		if err != nil {
-			return []Album{}, err
+			nErr++
+			fmt.Println("Elements failed to load on page")
+			continue
 		}
 
-		fmt.Println("loaded elements.")
+		fmt.Println("========= loaded enough elements in : ", time.Since(startTime))
+		startTime = time.Now()
 
-		albumElements = append(albumElements, page.MustElements(".albumBlock"))
+		albumElements[i] = page.MustElements(".albumBlock")
+		totalElements += len(albumElements[i])
+
+		fmt.Println("========= appended", len(albumElements[i]), "elements in : ", time.Since(startTime))
+		startTime = time.Now()
 	}
-	albums := []Album{}
+	if nErr >= len(albumsPages) {
+		return []Album{}, fmt.Errorf("failed to load album block elements from all pages")
+	}
 
-	fmt.Println("got elements")
-	//var mu sync.Mutex
+	fmt.Println("========= finished collecting all elements in : ", time.Since(startTime))
+	startTime = time.Now()
+
+	albums := []Album{}
 	var wg sync.WaitGroup
 
-	for i := 0; i < nrAlbums+3 && i < len(albumElements)*len(albumElements[0]); i++ {
-		wg.Add(1)
+	fmt.Println("Got ", totalElements, "album elements")
 
+	for i := 0; i < nrAlbums+3 && i < totalElements; i++ {
 		nPage := i % len(albumElements)
 		nAlbum := i / len(albumElements)
 
+		// need this check since n album elements on each page are not equal lengths
+		if nAlbum >= len(albumElements[nPage]) {
+			nrAlbums++
+			totalElements++
+			continue
+		}
+
+		wg.Add(1)
 		go func(e *rod.Element) {
 			defer wg.Done()
 			albums = append(albums, Album{
@@ -48,6 +72,8 @@ func ScrapeAlbums(albumsPages []*rod.Page, filter string, nrAlbums int) ([]Album
 	}
 
 	wg.Wait()
-	fmt.Println("scraped albums")
+
+	fmt.Println("========= finished compiling albums slice in : ", time.Since(startTime))
+	fmt.Println("scraped ", len(albums), "albums: ", albums)
 	return albums, nil
 }
