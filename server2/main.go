@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 	"github.com/rs/cors"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/spotify"
@@ -19,6 +21,7 @@ type apiConfig struct {
 	oauthConfig *oauth2.Config
 	store       *sessions.CookieStore
 	browser     *rod.Browser
+	rdb         *redis.Client
 }
 
 func main() {
@@ -27,6 +30,15 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 	port := os.Getenv("PORT")
+
+	redisAddr := os.Getenv("REDIS_ADDR")
+	rdb := redis.NewClient(&redis.Options{
+		Addr: redisAddr,
+		DB:   0,
+	})
+	if err := rdb.Ping(context.Background()).Err(); err != nil {
+		log.Fatalf("failed to connect to redis at %s: %v", redisAddr, err)
+	}
 
 	oauthConfig := &oauth2.Config{
 		ClientID:     os.Getenv("SPOTIFY_CLIENT_ID"),
@@ -59,6 +71,7 @@ func main() {
 		oauthConfig: oauthConfig,
 		store:       store,
 		browser:     browser,
+		rdb:         rdb,
 	}
 
 	r := mux.NewRouter()
