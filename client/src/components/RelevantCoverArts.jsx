@@ -48,31 +48,31 @@ const RelevantCoverArts = () => {
       sx={{
         p: 2,
         display: "grid",
-        gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(3, 1fr)" },
+        gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(4, 1fr)" },
         justifyItems: "center",
-        maxWidth: { xs: 400, sm: 800, lg: 900 },
+        maxWidth: { xs: 400, sm: 900, lg: 2000 },
       }}
     >
-      <Snackbar
+      {/* <Snackbar
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         open={open}
         autoHideDuration={4000}
         message="Generating playlist preview"
         onClose={(e, reason) => reason !== "clickaway" && setOpen(false)}
-      />
+      /> */}
       {(!Array.isArray(coverArtUrls[currentPlaylistType])
-        ? Array.from(new Array(6))
+        ? Array.from(new Array(8))
         : coverArtUrls[currentPlaylistType]
       ).map((album) => (
         <Paper key={uuidv4()} elevation={10} sx={{ m: 0.8, bgcolor: "gray" }}>
-          {album ? (
-            <Link
-              href={`https://open.spotify.com/album/${album.id}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <ImageListItem sx={{ p: 0.6 }}>
-                <img src={album.image_url} />
+          <ImageListItem sx={{ p: 0.6 }}>
+            {album ? (
+              <Link
+                href={`https://open.spotify.com/album/${album.id}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <img src={album.image_url} style={{ width: "100%" }} />
                 <ImageListItemBar
                   subtitle={album.artist}
                   actionIcon={
@@ -85,18 +85,18 @@ const RelevantCoverArts = () => {
                   }
                   sx={{ m: 0.8, height: "14%" }}
                 />
-              </ImageListItem>
-            </Link>
-          ) : (
-            <Skeleton
-              sx={{
-                width: { xs: 160, sm: 240, lg: 300 },
-                height: { xs: 160, sm: 240, lg: 300 },
-              }}
-              animation="wave"
-              variant="rounded"
-            />
-          )}
+              </Link>
+            ) : (
+              <Box>
+                <Skeleton animation="wave" variant="rounded">
+                  <img
+                    src="https://i.scdn.co/image/ab67616d00001e02e04b8c0b83df4247f25ac979"
+                    style={{ width: "100%" }}
+                  />
+                </Skeleton>
+              </Box>
+            )}
+          </ImageListItem>
         </Paper>
       ))}
     </Box>

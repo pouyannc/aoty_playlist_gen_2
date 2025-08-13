@@ -33,7 +33,7 @@ type fetchAndCacheError struct {
 
 var (
 	cacheKey  = "albumCovers"
-	freshness = 4 * time.Hour
+	freshness = 3 * time.Hour
 )
 
 func (cfg *apiConfig) handlerAlbumCovers(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +78,7 @@ func (cfg *apiConfig) handlerAlbumCovers(w http.ResponseWriter, r *http.Request)
 func fetchAndCacheAlbumData(r http.Request, browser *rod.Browser, store *sessions.CookieStore, rdb *redis.Client, scrapeURL, filter, key string, resp *[]AlbumCoversResp, fcErr *fetchAndCacheError) {
 	startTime := time.Now()
 
-	nrCovers := 6
+	nrCovers := 8
 
 	allScrapeURLs, err := scrape.CreateAllScrapeURLs(scrapeURL, filter)
 	if err != nil {
