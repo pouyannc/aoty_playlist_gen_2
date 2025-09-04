@@ -38,7 +38,7 @@ const initialState = {
   tracksPerAlbum: 2,
   nrOfTracks: 20,
   scrapeUrl: encodeURIComponent(
-    "https://www.albumoftheyear.org/releases/this-week/"
+    "https://www.albumoftheyear.org/releases/this-week/",
   ),
 };
 
@@ -63,7 +63,7 @@ const playlistOptionsSlice = createSlice({
             month[currentMonth]
           }-${(currentMonth + 1)
             .toString()
-            .padStart(2, "0")}.php?type=lp&sort=user&reviews=500`
+            .padStart(2, "0")}.php?type=lp&sort=user&reviews=500`,
         ),
       };
     },
@@ -74,7 +74,7 @@ const playlistOptionsSlice = createSlice({
         title: currentYear,
         description: `Generate a compilation of tracks from the hottest albums of ${currentYear}`,
         scrapeUrl: encodeURIComponent(
-          `https://www.albumoftheyear.org/${currentYear}/releases/?type=lp&sort=user&reviews=500`
+          `https://www.albumoftheyear.org/${currentYear}/releases/?type=lp&sort=user&reviews=500`,
         ),
       };
     },
@@ -86,7 +86,7 @@ const playlistOptionsSlice = createSlice({
         description:
           "Generate a compilation of tracks from the hottest albums of the last three years",
         scrapeUrl: encodeURIComponent(
-          `https://www.albumoftheyear.org/${currentYear}/releases/?type=lp&sort=user&reviews=500`
+          `https://www.albumoftheyear.org/${currentYear}/releases/?type=lp&sort=user&reviews=500`,
         ),
       };
     },

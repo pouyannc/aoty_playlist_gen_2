@@ -17,7 +17,7 @@ const AuthCallback = () => {
           `${import.meta.env.VITE_SERVER_URL}/auth/tokens`,
           {
             withCredentials: true,
-          }
+          },
         );
 
         setTokens(res.data.access_token, res.data.refresh_token);

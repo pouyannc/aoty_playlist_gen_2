@@ -16,10 +16,10 @@ import { FaSpotify } from "react-icons/fa";
 
 const RelevantCoverArts = () => {
   const currentPlaylistType = useSelector(
-    ({ playlistOptions }) => playlistOptions.type
+    ({ playlistOptions }) => playlistOptions.type,
   );
   const currentPlaylistScrapeUrl = useSelector(
-    ({ playlistOptions }) => playlistOptions.scrapeUrl
+    ({ playlistOptions }) => playlistOptions.scrapeUrl,
   );
   const coverArtUrls = useSelector(({ coverArtUrls }) => coverArtUrls);
   const dispatch = useDispatch();

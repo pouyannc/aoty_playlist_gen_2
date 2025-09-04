@@ -8,7 +8,7 @@ import {
 
 const PageSwitch = () => {
   const playlistCat = useSelector(
-    ({ playlistOptions }) => playlistOptions.category
+    ({ playlistOptions }) => playlistOptions.category,
   );
   const dispatch = useDispatch();
 

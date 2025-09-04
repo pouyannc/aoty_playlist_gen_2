@@ -28,7 +28,7 @@ export const getCoverUrls =
     dispatch(setCoverUrls({ type: playlistType, coverUrls: true }));
     const coverUrls = await coverArtsService.getCoverArts(
       playlistType,
-      playlistScrapeUrl
+      playlistScrapeUrl,
     );
     dispatch(setCoverUrls({ type: playlistType, coverUrls }));
     dispatch(setRetrievingFalse());

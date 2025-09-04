@@ -13,7 +13,7 @@ const getTracklist = async (q) => {
     { uid, playlistName },
     {
       withCredentials: true,
-    }
+    },
   );
   console.log(res.data);
   return res.data;

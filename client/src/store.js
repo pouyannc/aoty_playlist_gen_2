@@ -1,8 +1,8 @@
-import { configureStore } from '@reduxjs/toolkit';
-import userReducer from './reducers/userReducer';
-import playlistOptionsReducer from './reducers/playlistOptionsReducer';
-import coverArtReducer from './reducers/coverArtReducer';
-import generatedPlaylistReducer from './reducers/generatedPlaylistReducer';
+import { configureStore } from "@reduxjs/toolkit";
+import userReducer from "./reducers/userReducer";
+import playlistOptionsReducer from "./reducers/playlistOptionsReducer";
+import coverArtReducer from "./reducers/coverArtReducer";
+import generatedPlaylistReducer from "./reducers/generatedPlaylistReducer";
 
 const store = configureStore({
   reducer: {
@@ -10,7 +10,7 @@ const store = configureStore({
     playlistOptions: playlistOptionsReducer,
     coverArtUrls: coverArtReducer,
     generatedPlaylist: generatedPlaylistReducer,
-  }
-})
+  },
+});
 
 export default store;

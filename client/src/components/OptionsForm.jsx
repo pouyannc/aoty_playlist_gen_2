@@ -30,7 +30,7 @@ const OptionsForm = () => {
   const playlistInfo = useSelector(({ playlistOptions }) => playlistOptions);
   const playlistInfoTypeArr = playlistInfo.type.split("/");
   const generatedPlaylistInfo = useSelector(
-    ({ generatedPlaylist }) => generatedPlaylist
+    ({ generatedPlaylist }) => generatedPlaylist,
   );
   const uid = useSelector(({ user }) => user.spotifyUID);
   const dispatch = useDispatch();

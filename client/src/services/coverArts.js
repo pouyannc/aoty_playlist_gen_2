@@ -13,7 +13,7 @@ const getCoverArts = async (type, scrapeUrl) => {
       }`,
       {
         withCredentials: true,
-      }
+      },
     );
     return res.data;
   } catch (error) {

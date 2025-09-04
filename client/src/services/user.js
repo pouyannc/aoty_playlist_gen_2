@@ -18,7 +18,7 @@ const setTokens = (access, refresh) => {
 
 const refreshToken = async () => {
   const res = await axios.get(
-    `${serverURL}/login/refresh?refresh_token=${tokens.refreshToken}`
+    `${serverURL}/login/refresh?refresh_token=${tokens.refreshToken}`,
   );
   setTokens(res.data.access_token, tokens.refreshToken);
   saveSessionExpiry(res.data.expires_in);
