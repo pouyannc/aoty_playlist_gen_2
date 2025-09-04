@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-rod/rod"
-	"github.com/go-rod/stealth"
 	"github.com/pouyannc/aoty_list_gen/internal/scrape"
 	"github.com/pouyannc/aoty_list_gen/internal/spotify"
 )
@@ -16,14 +14,14 @@ type PlaylistData struct {
 	PlaylistID string `json:"playlist_id"`
 }
 
-func (cfg *apiConfig) handlerPlaylist(w http.ResponseWriter, r *http.Request) {
-	type scrapeParams struct {
-		scrapeURL      string
-		nTracks        int
-		tracksPerAlbum int
-		filter         string
-	}
+type scrapeParamsPlaylist struct {
+	scrapeURL      string
+	nTracks        int
+	tracksPerAlbum int
+	filter         string
+}
 
+func (cfg *apiConfig) handlerPlaylist(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var rParams struct {
 		PlaylistName string `json:"playlistName"`
@@ -45,7 +43,7 @@ func (cfg *apiConfig) handlerPlaylist(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't parse tracks per to int", err)
 		return
 	}
-	qParams := scrapeParams{
+	qParams := scrapeParamsPlaylist{
 		scrapeURL:      query.Get("scrape_url"),
 		nTracks:        nTracksInt,
 		tracksPerAlbum: tracksPerInt,
@@ -62,18 +60,10 @@ func (cfg *apiConfig) handlerPlaylist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var pages []*rod.Page
+	page := cfg.browser.MustPage("https://www.albumoftheyear.org/")
+	defer page.MustClose()
 
-	for _, url := range allScrapeURLs {
-		fmt.Println("---- opening new page...")
-		page := stealth.MustPage(cfg.browser)
-		defer page.MustClose()
-		page.MustNavigate(url)
-		pages = append(pages, page)
-	}
-
-	// CHANGE THIS
-	albums, _ := scrape.ScrapeAlbums(pages[1], []string{}, qParams.filter, nAlbums)
+	albums, _ := scrape.ScrapeAlbums(page, allScrapeURLs, qParams.filter, nAlbums)
 
 	session, err := cfg.store.Get(r, "spotify-session")
 	if err != nil {

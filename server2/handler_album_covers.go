@@ -20,7 +20,7 @@ type AlbumCoversResp struct {
 	ImageURL string `json:"image_url"`
 }
 
-type scrapeParams struct {
+type scrapeParamsCovers struct {
 	scrapeURL string
 	filter    string
 }
@@ -42,7 +42,7 @@ var (
 
 func (cfg *apiConfig) handlerAlbumCovers(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
-	params := scrapeParams{
+	params := scrapeParamsCovers{
 		scrapeURL: query.Get("scrape_url"),
 		filter:    query.Get("type"),
 	}
