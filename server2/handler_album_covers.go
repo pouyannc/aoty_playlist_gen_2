@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/go-rod/rod"
-	"github.com/go-rod/stealth"
 	"github.com/gorilla/sessions"
 	"github.com/pouyannc/aoty_list_gen/internal/scrape"
 	"github.com/pouyannc/aoty_list_gen/internal/spotify"
@@ -19,6 +18,11 @@ type AlbumCoversResp struct {
 	ID       string `json:"id"`
 	Artist   string `json:"artist"`
 	ImageURL string `json:"image_url"`
+}
+
+type scrapeParams struct {
+	scrapeURL string
+	filter    string
 }
 
 type cachePayload struct {
@@ -33,16 +37,10 @@ type fetchAndCacheError struct {
 
 var (
 	cacheKey  = "albumCovers"
-	freshness = 3 * time.Hour
+	freshness = 0 * time.Hour //set to 0 for testing
 )
 
 func (cfg *apiConfig) handlerAlbumCovers(w http.ResponseWriter, r *http.Request) {
-
-	type scrapeParams struct {
-		scrapeURL string
-		filter    string
-	}
-
 	query := r.URL.Query()
 	params := scrapeParams{
 		scrapeURL: query.Get("scrape_url"),
@@ -76,9 +74,7 @@ func (cfg *apiConfig) handlerAlbumCovers(w http.ResponseWriter, r *http.Request)
 }
 
 func fetchAndCacheAlbumData(r http.Request, browser *rod.Browser, store *sessions.CookieStore, rdb *redis.Client, scrapeURL, filter, key string, resp *[]AlbumCoversResp, fcErr *fetchAndCacheError) {
-	startTime := time.Now()
-
-	nrCovers := 8
+	nCovers := 8
 
 	allScrapeURLs, err := scrape.CreateAllScrapeURLs(scrapeURL, filter)
 	if err != nil {
@@ -86,36 +82,23 @@ func fetchAndCacheAlbumData(r http.Request, browser *rod.Browser, store *session
 		return
 	}
 
-	fmt.Println("Filter: ", filter)
+	page := browser.MustPage("https://www.albumoftheyear.org/")
+	defer page.MustClose()
 
-	var pages []*rod.Page
-
-	for _, url := range allScrapeURLs {
-		page := stealth.MustPage(browser)
-		defer page.MustClose()
-		page.MustNavigate(url)
-		fmt.Println(url)
-		pages = append(pages, page)
-	}
-	fmt.Println("========== Opened pages in:", time.Since(startTime))
-	startTime = time.Now()
-
-	albums, err := scrape.ScrapeAlbums(pages, filter, nrCovers)
+	albums, err := scrape.ScrapeAlbums(page, allScrapeURLs, filter, nCovers)
 	if err != nil {
 		fcErr.status, fcErr.err = http.StatusInternalServerError, err
 		return
 	}
-	fmt.Printf("========== Scraped in: %v\n", time.Since(startTime))
-	startTime = time.Now()
 
 	session, err := store.Get(&r, "spotify-session")
 	if err != nil {
-		fmt.Println(err)
+		fcErr.status, fcErr.err = http.StatusBadRequest, err
 		return
 	}
 	token, ok := session.Values["access_token"]
 	if !ok {
-		fmt.Println(token)
+		fcErr.status, fcErr.err = http.StatusBadRequest, err
 		return
 	}
 
@@ -124,8 +107,6 @@ func fetchAndCacheAlbumData(r http.Request, browser *rod.Browser, store *session
 		fmt.Println(err)
 	}
 
-	fmt.Printf("========== Spotify search done in: %v\n", time.Since(startTime))
-
 	for _, data := range albumData {
 		*resp = append(*resp, AlbumCoversResp{
 			ID:       data.AlbumID,
@@ -133,7 +114,7 @@ func fetchAndCacheAlbumData(r http.Request, browser *rod.Browser, store *session
 			ImageURL: data.CoverURL,
 		})
 
-		if len(*resp) == nrCovers {
+		if len(*resp) == nCovers {
 			break
 		}
 	}
@@ -150,4 +131,6 @@ func fetchAndCacheAlbumData(r http.Request, browser *rod.Browser, store *session
 	if err != nil {
 		fmt.Printf("error saving response to redis cache: %v\n", err)
 	}
+
+	fmt.Println("Fetch and cache album data COMPLETE -------------------------------------------------------------------")
 }

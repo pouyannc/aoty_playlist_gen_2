@@ -15,29 +15,25 @@ import {
 import { FaSpotify } from "react-icons/fa";
 
 const RelevantCoverArts = () => {
-  const playlistInfo = useSelector(({ playlistOptions }) => playlistOptions);
+  const currentPlaylistType = useSelector(
+    ({ playlistOptions }) => playlistOptions.type
+  );
+  const currentPlaylistScrapeUrl = useSelector(
+    ({ playlistOptions }) => playlistOptions.scrapeUrl
+  );
   const coverArtUrls = useSelector(({ coverArtUrls }) => coverArtUrls);
   const dispatch = useDispatch();
 
-  const currentPlaylistType = playlistInfo.type;
-  const [open, setOpen] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   useEffect(() => {
     if (!coverArtUrls.retrieving) {
-      if (!coverArtUrls[currentPlaylistType]) {
+      console.log(coverArtUrls[currentPlaylistType]);
+      if (coverArtUrls[currentPlaylistType] === undefined) {
         setTimeout(() => {
           dispatch(setRetrievingTrue());
-          setOpen(true);
-          const accessToken = localStorage.getItem("access");
-          dispatch(
-            getCoverUrls({
-              ...playlistInfo,
-              tracksPerAlbum: 1,
-              nrOfTracks: 6,
-              returnType: "cover",
-              accessToken,
-            })
-          );
+          setOpenSnackbar(true);
+          dispatch(getCoverUrls(currentPlaylistType, currentPlaylistScrapeUrl));
         }, 1000);
       }
     }
@@ -64,7 +60,11 @@ const RelevantCoverArts = () => {
         ? Array.from(new Array(8))
         : coverArtUrls[currentPlaylistType]
       ).map((album) => (
-        <Paper key={uuidv4()} elevation={10} sx={{ m: 0.8, bgcolor: "gray" }}>
+        <Paper
+          key={uuidv4()}
+          elevation={10}
+          sx={{ m: 0.8, bgcolor: "#0F1A20" }}
+        >
           <ImageListItem sx={{ p: 0.6 }}>
             {album ? (
               <Link

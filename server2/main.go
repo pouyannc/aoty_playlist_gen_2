@@ -25,11 +25,11 @@ type apiConfig struct {
 }
 
 func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	_ = godotenv.Load()
 	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("error loading .env (port is empty)")
+	}
 
 	redisAddr := os.Getenv("REDIS_ADDR")
 	rdb := redis.NewClient(&redis.Options{
@@ -63,6 +63,8 @@ func main() {
 		UserDataDir("tmp/t").
 		Set("disable-default-apps").
 		Set("no-first-run").
+		Set("disable-gpu").
+		NoSandbox(true).
 		MustLaunch()
 	browser := rod.New().ControlURL(u).MustConnect()
 	defer browser.MustClose()

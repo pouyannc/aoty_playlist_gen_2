@@ -72,7 +72,8 @@ func (cfg *apiConfig) handlerPlaylist(w http.ResponseWriter, r *http.Request) {
 		pages = append(pages, page)
 	}
 
-	albums, _ := scrape.ScrapeAlbums(pages, qParams.filter, nAlbums)
+	// CHANGE THIS
+	albums, _ := scrape.ScrapeAlbums(pages[1], []string{}, qParams.filter, nAlbums)
 
 	session, err := cfg.store.Get(r, "spotify-session")
 	if err != nil {

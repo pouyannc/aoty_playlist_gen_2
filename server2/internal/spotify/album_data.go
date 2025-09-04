@@ -34,7 +34,7 @@ type SpotifyAlbum struct {
 	Artist   string
 }
 
-func AlbumData(albums []scrape.Album, token string) ([]SpotifyAlbum, error) {
+func AlbumData(albums []*scrape.Album, token string) ([]SpotifyAlbum, error) {
 
 	baseURL := "https://api.spotify.com/v1/search"
 
@@ -45,6 +45,9 @@ func AlbumData(albums []scrape.Album, token string) ([]SpotifyAlbum, error) {
 	sem := make(chan struct{}, 8)
 
 	for _, album := range albums {
+		if album == nil {
+			continue
+		}
 		wg.Add(1)
 		sem <- struct{}{}
 
@@ -102,7 +105,7 @@ func AlbumData(albums []scrape.Album, token string) ([]SpotifyAlbum, error) {
 					break
 				}
 			}
-		}(album)
+		}(*album)
 	}
 
 	wg.Wait()

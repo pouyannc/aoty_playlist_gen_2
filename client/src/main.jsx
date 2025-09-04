@@ -1,17 +1,17 @@
-import ReactDOM from 'react-dom/client'
-import { Provider } from 'react-redux'
-import App from './App.jsx'
-import store from './store.js'
-import { BrowserRouter as Router } from 'react-router-dom'
-import { ThemeProvider } from '@emotion/react'
-import { CssBaseline, createTheme } from '@mui/material'
+import ReactDOM from "react-dom/client";
+import { Provider } from "react-redux";
+import App from "./App.jsx";
+import store from "./store.js";
+import { BrowserRouter as Router } from "react-router-dom";
+import { ThemeProvider } from "@emotion/react";
+import { CssBaseline, createTheme } from "@mui/material";
 
 const darkTheme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: "dark",
     primary: {
-      main: '#DB7F67'
-    }
+      main: "#FFC9B5",
+    },
   },
   components: {
     MuiCssBaseline: {
@@ -24,7 +24,7 @@ const darkTheme = createTheme({
   },
 });
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById("root")).render(
   <Router>
     <Provider store={store}>
       <ThemeProvider theme={darkTheme}>
@@ -33,4 +33,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       </ThemeProvider>
     </Provider>
   </Router>
-)
+);

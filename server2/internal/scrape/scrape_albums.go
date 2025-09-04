@@ -2,7 +2,7 @@ package scrape
 
 import (
 	"fmt"
-	"sync"
+	"log"
 	"time"
 
 	"github.com/go-rod/rod"
@@ -13,67 +13,56 @@ type Album struct {
 	Artist string
 }
 
-func ScrapeAlbums(albumsPages []*rod.Page, filter string, nrAlbums int) ([]Album, error) {
-	fmt.Println("in scrape function")
-	startTime := time.Now()
-	nPages := len(albumsPages)
-	albumElements := make([]rod.Elements, nPages)
-	totalElements := 0
+func ScrapeAlbums(page *rod.Page, scrapeURLs []string, filter string, nAlbums int) ([]*Album, error) {
+	nAlbumsBuffer := 3
+	nPages := len(scrapeURLs)
+	totalAppended := 0
+	albums := make([]*Album, (nAlbums+nAlbumsBuffer)*nPages)
 
 	nErr := 0
-	for i, page := range albumsPages {
-		err := page.Timeout(800*time.Millisecond).WaitElementsMoreThan(".albumBlock", 0)
+	for i, u := range scrapeURLs {
+		err := page.Navigate(u)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		log.Printf("Current number of pages running in browser: %v\n", len(page.Browser().MustPages()))
+		err = page.Timeout(2000*time.Millisecond).WaitElementsMoreThan(".albumBlock", 0)
 		if err != nil {
 			nErr++
 			fmt.Println("Elements failed to load on page")
 			continue
 		}
 
-		fmt.Println("========= loaded enough elements in : ", time.Since(startTime))
-		startTime = time.Now()
-
-		albumElements[i] = page.MustElements(".albumBlock")
-		totalElements += len(albumElements[i])
-
-		fmt.Println("========= appended", len(albumElements[i]), "elements in : ", time.Since(startTime))
-		startTime = time.Now()
-	}
-	if nErr >= len(albumsPages) {
-		return []Album{}, fmt.Errorf("failed to load album block elements from all pages")
-	}
-
-	fmt.Println("========= finished collecting all elements in : ", time.Since(startTime))
-	startTime = time.Now()
-
-	albums := []Album{}
-	var wg sync.WaitGroup
-
-	fmt.Println("Got ", totalElements, "album elements")
-
-	for i := 0; i < nrAlbums+3 && i < totalElements; i++ {
-		nPage := i % len(albumElements)
-		nAlbum := i / len(albumElements)
-
-		// need this check since n album elements on each page are not equal lengths
-		if nAlbum >= len(albumElements[nPage]) {
-			nrAlbums++
-			totalElements++
+		albumElements, err := page.Timeout(2000 * time.Millisecond).Elements(".albumBlock")
+		if err != nil {
+			fmt.Println(err)
 			continue
 		}
 
-		wg.Add(1)
-		go func(e *rod.Element) {
-			defer wg.Done()
-			albums = append(albums, Album{
+		appendedFromPage := 0
+		for j, e := range albumElements {
+			albumSlicePosition := i + j*nPages
+			if albumSlicePosition >= len(albums) {
+				break
+			}
+			albums[albumSlicePosition] = &Album{
 				Title:  e.MustElement(".albumTitle").MustText(),
 				Artist: e.MustElement(".artistTitle").MustText(),
-			})
-		}(albumElements[nPage][nAlbum])
+			}
+			totalAppended++
+			appendedFromPage++
+		}
+
+		fmt.Println("========= appended", appendedFromPage, "albums from page")
+	}
+	fmt.Printf("%v/%v pages loaded elements successfully\n", len(scrapeURLs)-nErr, len(scrapeURLs))
+	if nErr >= len(scrapeURLs) {
+		return []*Album{}, fmt.Errorf("failed to load album block elements from all pages")
 	}
 
-	wg.Wait()
-
-	fmt.Println("========= finished compiling albums slice in : ", time.Since(startTime))
-	fmt.Println("scraped ", len(albums), "albums: ", albums)
+	fmt.Println("========= finished compiling albums slice")
+	fmt.Println("scraped ", totalAppended, "albums")
 	return albums, nil
 }

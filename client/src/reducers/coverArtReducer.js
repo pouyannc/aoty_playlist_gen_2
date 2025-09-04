@@ -1,10 +1,10 @@
-import { createSlice } from '@reduxjs/toolkit';
-import coverArtsService from '../services/coverArts';
+import { createSlice } from "@reduxjs/toolkit";
+import coverArtsService from "../services/coverArts";
 
 const initialState = { retrieving: false };
 
 const coverArtSlice = createSlice({
-  name: 'coverArt',
+  name: "coverArt",
   initialState,
   reducers: {
     setCoverUrls(state, action) {
@@ -16,17 +16,22 @@ const coverArtSlice = createSlice({
     },
     setRetrievingFalse(state) {
       return { ...state, retrieving: false };
-    }
-  }
-})
+    },
+  },
+});
 
-export const { setCoverUrls, setRetrievingFalse, setRetrievingTrue } = coverArtSlice.actions;
+export const { setCoverUrls, setRetrievingFalse, setRetrievingTrue } =
+  coverArtSlice.actions;
 
-export const getCoverUrls = (params) => async (dispatch) => {
-  dispatch(setCoverUrls({ type: params.type, coverUrls: true }));
-  const coverUrls = await coverArtsService.getCoverArts(params);
-  dispatch(setCoverUrls({ type: params.type, coverUrls }));
-  dispatch(setRetrievingFalse());
-}
+export const getCoverUrls =
+  (playlistType, playlistScrapeUrl) => async (dispatch) => {
+    dispatch(setCoverUrls({ type: playlistType, coverUrls: true }));
+    const coverUrls = await coverArtsService.getCoverArts(
+      playlistType,
+      playlistScrapeUrl
+    );
+    dispatch(setCoverUrls({ type: playlistType, coverUrls }));
+    dispatch(setRetrievingFalse());
+  };
 
 export default coverArtSlice.reducer;
