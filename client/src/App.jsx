@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import { Container } from "@mui/material";
 import Nav from "./components/Nav";
 import GenPage from "./components/GenPage";
@@ -9,11 +9,11 @@ import AuthCallback from "./components/AuthCallback";
 
 function App() {
   const uid = useSelector(({ user }) => user.spotifyUID);
+  const navigate = useNavigate();
 
   return (
     <Routes>
       <Route path="/auth/callback" element={<AuthCallback />} />
-
       <Route
         path="/*"
         element={

@@ -3,28 +3,34 @@ package main
 import (
 	"errors"
 	"net/http"
+	"time"
+
+	"github.com/pouyannc/aoty_list_gen/util"
 )
 
 type LoginResponse struct {
-	AccessToken string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	ExpiresIn int64 `json:"expires_in"`
+	AccessToken  string    `json:"access_token"`
+	RefreshToken string    `json:"refresh_token"`
+	Expiry       time.Time `json:"expiry"`
+	SpotifyUID   string    `json:"spotify_uid"`
 }
 
 func (cfg *apiConfig) handlerAuthTokens(w http.ResponseWriter, r *http.Request) {
-	session, _  := cfg.store.Get(r, "spotify-session")
+	session, _ := cfg.store.Get(r, "spotify-session")
 	access, ok1 := session.Values["access_token"].(string)
 	refresh, ok2 := session.Values["refresh_token"].(string)
-	expires, ok3 := session.Values["expires_in"].(int64)
+	expiry, ok3 := session.Values["expiry"].(time.Time)
+	uid, ok4 := session.Values["spotify_uid"].(string)
 
-	if !ok1 || !ok2 || !ok3 {
-		respondWithError(w, http.StatusUnauthorized, "User unauthorized", errors.New("tokens not found in session"))
+	if !ok1 || !ok2 || !ok3 || !ok4 {
+		util.RespondWithError(w, http.StatusUnauthorized, "User unauthorized", errors.New("tokens not found in session"))
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, LoginResponse{
-		AccessToken: access,
+	util.RespondWithJSON(w, http.StatusOK, LoginResponse{
+		AccessToken:  access,
 		RefreshToken: refresh,
-		ExpiresIn: expires,
+		Expiry:       expiry,
+		SpotifyUID:   uid,
 	})
 }

@@ -10,15 +10,15 @@ import (
 func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 	state, err := util.GenerateRandomString(16)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Failed to generate state for Spotify OAuth2", err)
+		util.RespondWithError(w, http.StatusInternalServerError, "Failed to generate state for Spotify OAuth2", err)
 		return
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name: "oauthstate",
-		Value: state,
+		Name:     "oauthstate",
+		Value:    state,
 		HttpOnly: true,
-		Path: "/api/login",
+		Path:     "/api/login",
 	})
 
 	url := cfg.oauthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline)

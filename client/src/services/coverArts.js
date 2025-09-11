@@ -4,8 +4,6 @@ import refreshSessionIfNeeded from "../util/checkAndRefreshSession";
 const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 const getCoverArts = async (type, scrapeUrl) => {
-  await refreshSessionIfNeeded();
-
   try {
     const res = await axios.get(
       `${serverUrl}/albums/covers?scrape_url=${scrapeUrl}&type=${
@@ -13,7 +11,7 @@ const getCoverArts = async (type, scrapeUrl) => {
       }`,
       {
         withCredentials: true,
-      },
+      }
     );
     return res.data;
   } catch (error) {

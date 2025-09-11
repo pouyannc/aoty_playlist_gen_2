@@ -1,8 +1,7 @@
 import axios from "axios";
 import saveSessionExpiry from "../util/saveSessionExpiry";
-import refreshSessionIfNeeded from "../util/checkAndRefreshSession";
+import { setUID } from "../reducers/userReducer";
 
-const profileURL = "https://api.spotify.com/v1/me";
 const serverURL = import.meta.env.VITE_SERVER_URL;
 
 let tokens;
@@ -17,23 +16,23 @@ const setTokens = (access, refresh) => {
 };
 
 const refreshToken = async () => {
-  const res = await axios.get(
-    `${serverURL}/login/refresh?refresh_token=${tokens.refreshToken}`,
-  );
+  const res = await axios.get(`${serverURL}/login/refresh}`, {
+    withCredentials: true,
+  });
   setTokens(res.data.access_token, tokens.refreshToken);
   saveSessionExpiry(res.data.expires_in);
 };
 
 const getSpotifyUID = async () => {
-  await refreshSessionIfNeeded();
   try {
-    const res = await axios.get(profileURL, {
-      headers: { Authorization: tokens.accessToken },
+    const res = await axios.get(`${serverURL}/auth/tokens`, {
+      withCredentials: true,
     });
-    return res.data.id;
+    return res.data.spotify_uid;
   } catch (error) {
-    console.log("could not retrieve user id", error);
+    console.log(error);
+    return "";
   }
 };
 
-export { setTokens, getSpotifyUID, refreshToken };
+export { setTokens, refreshToken, getSpotifyUID };

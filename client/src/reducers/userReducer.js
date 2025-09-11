@@ -23,9 +23,9 @@ const userSlice = createSlice({
 
 export const { setUID, logout } = userSlice.actions;
 
-export const getUID = () => async (dispatch) => {
-  const id = await getSpotifyUID();
-  dispatch(setUID(id));
+export const getAndSetSpotifyUID = () => async (dispatch) => {
+  const uid = await getSpotifyUID();
+  dispatch(setUID(uid));
 };
 
 export default userSlice.reducer;

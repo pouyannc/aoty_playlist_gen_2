@@ -2,15 +2,18 @@ package main
 
 import (
 	"context"
+	"encoding/gob"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
+	"github.com/pouyannc/aoty_list_gen/internal/middleware"
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/cors"
 	"golang.org/x/oauth2"
@@ -25,6 +28,8 @@ type apiConfig struct {
 }
 
 func main() {
+	gob.Register(time.Time{})
+
 	_ = godotenv.Load()
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -78,13 +83,14 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/api/login/refresh", cfg.handlerRefreshLogin).Methods("GET")
 	r.HandleFunc("/api/login", cfg.handlerLogin).Methods("GET")
 	r.HandleFunc("/api/login/callback", cfg.handlerLoginCallback).Methods("GET")
 	r.HandleFunc("/api/auth/tokens", cfg.handlerAuthTokens).Methods("GET")
 
-	r.HandleFunc("/api/albums/covers", cfg.handlerAlbumCovers).Methods("GET")
-	r.HandleFunc("/api/albums/playlist", cfg.handlerPlaylist).Methods("POST")
+	albumsSubrouter := r.PathPrefix("/api/albums").Subrouter()
+	albumsSubrouter.HandleFunc("/covers", cfg.handlerAlbumCovers).Methods("GET")
+	albumsSubrouter.HandleFunc("/playlist", cfg.handlerPlaylist).Methods("POST")
+	albumsSubrouter.Use(middleware.ValidateSpotifyToken(cfg.store))
 
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173"}, // React dev server

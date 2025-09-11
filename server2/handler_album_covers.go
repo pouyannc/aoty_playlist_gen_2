@@ -8,9 +8,10 @@ import (
 	"time"
 
 	"github.com/go-rod/rod"
-	"github.com/gorilla/sessions"
+	"github.com/pouyannc/aoty_list_gen/internal/middleware"
 	"github.com/pouyannc/aoty_list_gen/internal/scrape"
 	"github.com/pouyannc/aoty_list_gen/internal/spotify"
+	"github.com/pouyannc/aoty_list_gen/util"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -56,24 +57,24 @@ func (cfg *apiConfig) handlerAlbumCovers(w http.ResponseWriter, r *http.Request)
 		var payload cachePayload
 		err := json.Unmarshal([]byte(cacheValue), &payload)
 		if err == nil {
-			respondWithJSON(w, http.StatusOK, payload.Data)
+			util.RespondWithJSON(w, http.StatusOK, payload.Data)
 			payloadAge := time.Since(time.Unix(payload.Ts, 0))
 			if payloadAge > freshness {
-				go fetchAndCacheAlbumData(*r, cfg.browser, cfg.store, cfg.rdb, params.scrapeURL, params.filter, key, &resp, &fetchAndCacheErr)
+				go fetchAndCacheAlbumData(*r, cfg.browser, cfg.rdb, params.scrapeURL, params.filter, key, &resp, &fetchAndCacheErr)
 			}
 			return
 		}
 	}
 
-	fetchAndCacheAlbumData(*r, cfg.browser, cfg.store, cfg.rdb, params.scrapeURL, params.filter, key, &resp, &fetchAndCacheErr)
+	fetchAndCacheAlbumData(*r, cfg.browser, cfg.rdb, params.scrapeURL, params.filter, key, &resp, &fetchAndCacheErr)
 
 	if fetchAndCacheErr.err != nil {
-		respondWithError(w, fetchAndCacheErr.status, "Couldn't fetch or cache album cover data", fetchAndCacheErr.err)
+		util.RespondWithError(w, fetchAndCacheErr.status, "Couldn't fetch or cache album cover data", fetchAndCacheErr.err)
 	}
-	respondWithJSON(w, http.StatusOK, resp)
+	util.RespondWithJSON(w, http.StatusOK, resp)
 }
 
-func fetchAndCacheAlbumData(r http.Request, browser *rod.Browser, store *sessions.CookieStore, rdb *redis.Client, scrapeURL, filter, key string, resp *[]AlbumCoversResp, fcErr *fetchAndCacheError) {
+func fetchAndCacheAlbumData(r http.Request, browser *rod.Browser, rdb *redis.Client, scrapeURL, filter, key string, resp *[]AlbumCoversResp, fcErr *fetchAndCacheError) {
 	nCovers := 8
 
 	allScrapeURLs, err := scrape.CreateAllScrapeURLs(scrapeURL, filter)
@@ -91,18 +92,9 @@ func fetchAndCacheAlbumData(r http.Request, browser *rod.Browser, store *session
 		return
 	}
 
-	session, err := store.Get(&r, "spotify-session")
-	if err != nil {
-		fcErr.status, fcErr.err = http.StatusBadRequest, err
-		return
-	}
-	token, ok := session.Values["access_token"]
-	if !ok {
-		fcErr.status, fcErr.err = http.StatusBadRequest, err
-		return
-	}
+	token := r.Context().Value(middleware.TokenKey).(string)
 
-	albumData, err := spotify.AlbumData(albums, token.(string))
+	albumData, err := spotify.AlbumData(albums, token)
 	if err != nil {
 		fmt.Println(err)
 	}
