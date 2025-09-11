@@ -1,13 +1,16 @@
 package middleware
 
 import (
-	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/gorilla/sessions"
@@ -75,25 +78,26 @@ func ValidateSpotifyToken(store *sessions.CookieStore) func(http.Handler) http.H
 }
 
 func refreshAndGetTokens(refreshToken string) (TokenResp, error) {
-	url := "https://accounts.spotify.com/api/token"
+	tokenURL := "https://accounts.spotify.com/api/token"
 
-	payload := struct {
-		GrantType    string `json:"grant_type"`
-		RefreshToken string `json:"refresh_type"`
-	}{
-		GrantType:    "refresh_token",
-		RefreshToken: refreshToken,
-	}
-	body, err := json.Marshal(payload)
-	if err != nil {
-		return TokenResp{}, err
-	}
+	formData := url.Values{}
+	formData.Add("grant_type", "refresh_token")
+	formData.Add("refresh_token", refreshToken)
+	encodedData := formData.Encode()
 
-	req, err := http.NewRequest("POST", url, bytes.NewReader(body))
+	fmt.Println(encodedData)
+
+	req, err := http.NewRequest("POST", tokenURL, strings.NewReader(encodedData))
 	if err != nil {
 		return TokenResp{}, err
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	clientID := os.Getenv("SPOTIFY_CLIENT_ID")
+	clientSecret := os.Getenv("SPOTIFY_CLIENT_SECRET")
+	authClientStr := fmt.Sprintf("%s:%s", clientID, clientSecret)
+	authClientEnc := base64.URLEncoding.EncodeToString([]byte(authClientStr))
+	authHeader := fmt.Sprintf("Basic %s", authClientEnc)
+	req.Header.Set("Authorization", authHeader)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

@@ -36,7 +36,8 @@ func main() {
 		log.Fatal("error loading .env (port is empty)")
 	}
 
-	redisAddr := os.Getenv("REDIS_ADDR")
+	//redisAddr := os.Getenv("REDIS_ADDR")
+	redisAddr := ":6379" //for dev
 	rdb := redis.NewClient(&redis.Options{
 		Addr: redisAddr,
 		DB:   0,
