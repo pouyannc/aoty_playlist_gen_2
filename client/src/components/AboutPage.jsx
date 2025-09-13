@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { FaGitAlt, FaGithub, FaNode, FaReact } from "react-icons/fa";
+import { FaGitAlt, FaGithub, FaReact } from "react-icons/fa";
 import { FaGolang } from "react-icons/fa6";
 import { SiMui, SiVite } from "react-icons/si";
 

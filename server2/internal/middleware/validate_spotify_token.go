@@ -18,9 +18,8 @@ import (
 )
 
 type TokenResp struct {
-	AccessToken  string `json:"access_token"`
-	ExpiresIn    int    `json:"expires_in"`
-	RefreshToken string `json:"refresh_token"`
+	AccessToken string `json:"access_token"`
+	ExpiresIn   int    `json:"expires_in"`
 }
 
 type contextKey string
@@ -48,15 +47,14 @@ func ValidateSpotifyToken(store *sessions.CookieStore) func(http.Handler) http.H
 				return
 			}
 			if time.Now().After(expiry.(time.Time)) {
-				token, err := refreshAndGetTokens(refreshToken.(string))
+				tokens, err := refreshAndGetTokens(refreshToken.(string))
 				if err != nil {
 					util.RespondWithError(w, http.StatusInternalServerError, "Couldn't refresh tokens", err)
 					return
 				}
 
-				session.Values["access_token"] = token.AccessToken
-				session.Values["refresh_token"] = token.RefreshToken
-				session.Values["expiry"] = time.Now().Add(time.Duration(token.ExpiresIn) * time.Second)
+				session.Values["access_token"] = tokens.AccessToken
+				session.Values["expiry"] = time.Now().Add(time.Duration(tokens.ExpiresIn) * time.Second)
 				err = session.Save(r, w)
 				if err != nil {
 					util.RespondWithError(w, http.StatusInternalServerError, "Couldn't save server session", err)
@@ -84,8 +82,6 @@ func refreshAndGetTokens(refreshToken string) (TokenResp, error) {
 	formData.Add("grant_type", "refresh_token")
 	formData.Add("refresh_token", refreshToken)
 	encodedData := formData.Encode()
-
-	fmt.Println(encodedData)
 
 	req, err := http.NewRequest("POST", tokenURL, strings.NewReader(encodedData))
 	if err != nil {

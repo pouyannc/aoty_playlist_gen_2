@@ -1,36 +1,26 @@
-import { useDispatch, useSelector } from "react-redux";
-import { initNew, initRecent } from "../reducers/playlistOptionsReducer";
+import { useSelector } from "react-redux";
 import { Box, Tab, Tabs } from "@mui/material";
-import {
-  setPlaylistNameGenre,
-  setPlaylistNameSort,
-} from "../reducers/generatedPlaylistReducer";
+import { Link, useNavigate } from "react-router-dom";
 
 const PageSwitch = () => {
-  const playlistCat = useSelector(
-    ({ playlistOptions }) => playlistOptions.category,
-  );
-  const dispatch = useDispatch();
+  const playlistOptions = useSelector(({ playlistOptions }) => playlistOptions);
 
-  const handlePageSwitch = (type) => {
-    if (type === "new") {
-      dispatch(initNew());
-      dispatch(setPlaylistNameSort(""));
-      dispatch(setPlaylistNameGenre(""));
-    } else if (type === "recent") {
-      dispatch(initRecent());
-      dispatch(setPlaylistNameSort("Must-Hear"));
-    }
-  };
+  const navigate = useNavigate();
 
   return (
     <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-      <Tabs value={playlistCat} centered>
-        <Tab value="new" label="New" onClick={() => handlePageSwitch("new")} />
+      <Tabs value={playlistOptions.category} centered>
+        <Tab
+          value="new"
+          label="New"
+          component={Link}
+          to="/"
+          onClick={() => navigate("/")}
+        />
         <Tab
           value="recent"
           label="Recent"
-          onClick={() => handlePageSwitch("recent")}
+          onClick={() => navigate("/recent/months/must-hear/all")}
         />
       </Tabs>
     </Box>

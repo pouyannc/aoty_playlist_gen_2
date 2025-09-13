@@ -1,6 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setGenre,
   setNrOfTracks,
   setTracksPerAlbum,
 } from "../reducers/playlistOptionsReducer";
@@ -25,14 +24,16 @@ import {
   setRetrievingFalse,
   setRetrievingTrue,
 } from "../reducers/coverArtReducer";
+import { useNavigate } from "react-router-dom";
 
 const OptionsForm = () => {
   const playlistInfo = useSelector(({ playlistOptions }) => playlistOptions);
   const playlistInfoTypeArr = playlistInfo.type.split("/");
   const generatedPlaylistInfo = useSelector(
-    ({ generatedPlaylist }) => generatedPlaylist,
+    ({ generatedPlaylist }) => generatedPlaylist
   );
   const uid = useSelector(({ user }) => user.spotifyUID);
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const controlGenre = playlistInfoTypeArr[2];
@@ -64,8 +65,10 @@ const OptionsForm = () => {
   };
 
   const handleGenreChange = (e) => {
-    dispatch(setGenre(e.target.value));
     dispatch(setPlaylistNameGenre(e.target.value));
+
+    playlistInfoTypeArr[2] = e.target.value;
+    navigate("/recent/" + playlistInfoTypeArr.join("/"));
   };
 
   const handleLengthChange = (e) => {

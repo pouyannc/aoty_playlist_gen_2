@@ -1,66 +1,50 @@
-import { useDispatch, useSelector } from "react-redux";
-import {
-  initRecent,
-  setSort,
-  switchCurrentYear,
-  switchRecentYears,
-} from "../reducers/playlistOptionsReducer";
+import { useSelector } from "react-redux";
 import { Box, Tab, Tabs } from "@mui/material";
-import { setPlaylistNameSort } from "../reducers/generatedPlaylistReducer";
+import { useNavigate } from "react-router-dom";
 
 const SubPageSwitch = () => {
   const currentYear = new Date().getFullYear();
-
   const playlistInfo = useSelector(({ playlistOptions }) => playlistOptions);
-  const dispatch = useDispatch();
+  const playlistTypeArr = playlistInfo.type.split("/");
+  const [time, sort, _] = playlistTypeArr;
+  const navigate = useNavigate();
 
-  const handlePageSwitch = (type) => {
-    dispatch(setPlaylistNameSort("Must-Hear"));
-    if (type === "months") dispatch(initRecent());
-    else if (type === currentYear) dispatch(switchCurrentYear());
-    else if (type === "years") dispatch(switchRecentYears());
-  };
+  const handleTabSwitch = (switchVal, typeIdx) => {
+    playlistTypeArr[typeIdx] = switchVal;
 
-  const handleSortSwitch = (type) => {
-    if (type === "must-hear") {
-      dispatch(setSort("rating"));
-      dispatch(setPlaylistNameSort("Must-Hear"));
-    } else if (type === "popular") {
-      dispatch(setSort("popular"));
-      dispatch(setPlaylistNameSort("Popular"));
-    }
+    navigate("recent/" + playlistTypeArr.join("/"));
   };
 
   return (
     playlistInfo.category === "recent" && (
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-        <Tabs value={playlistInfo.type.split("/")[0]} centered>
+        <Tabs value={time} centered>
           <Tab
             value="months"
             label="Months"
-            onClick={() => handlePageSwitch("months")}
+            onClick={() => handleTabSwitch("months", 0)}
           />
           <Tab
             value={currentYear.toString()}
             label={currentYear}
-            onClick={() => handlePageSwitch(currentYear)}
+            onClick={() => handleTabSwitch(currentYear.toString(), 0)}
           />
           <Tab
             value="years"
             label="Years"
-            onClick={() => handlePageSwitch("years")}
+            onClick={() => handleTabSwitch("years", 0)}
           />
         </Tabs>
-        <Tabs value={playlistInfo.type.split("/")[1]} centered>
+        <Tabs value={sort} centered>
           <Tab
-            value="rating"
+            value="must-hear"
             label="Must-Hear"
-            onClick={() => handleSortSwitch("must-hear")}
+            onClick={() => handleTabSwitch("must-hear", 1)}
           />
           <Tab
             value="popular"
             label="Popular"
-            onClick={() => handleSortSwitch("popular")}
+            onClick={() => handleTabSwitch("popular", 1)}
           />
         </Tabs>
       </Box>

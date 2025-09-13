@@ -9,7 +9,6 @@ import AuthCallback from "./components/AuthCallback";
 
 function App() {
   const uid = useSelector(({ user }) => user.spotifyUID);
-  const navigate = useNavigate();
 
   return (
     <Routes>
@@ -32,7 +31,7 @@ function App() {
             >
               <Nav />
               <Routes>
-                <Route path="/" element={<GenPage />} />
+                <Route path="/*" element={<GenPage />} />
                 <Route path="/about" element={<AboutPage />} />
               </Routes>
             </Container>
