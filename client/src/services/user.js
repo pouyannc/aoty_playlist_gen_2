@@ -35,4 +35,14 @@ const getSpotifyUID = async () => {
   }
 };
 
-export { setTokens, refreshToken, getSpotifyUID };
+const logout = async () => {
+  try {
+    await axios.delete(`${serverURL}/logout`, {
+      withCredentials: true,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export { setTokens, refreshToken, getSpotifyUID, logout };

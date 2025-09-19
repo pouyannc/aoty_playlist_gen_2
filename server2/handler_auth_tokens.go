@@ -16,7 +16,11 @@ type LoginResponse struct {
 }
 
 func (cfg *apiConfig) handlerAuthTokens(w http.ResponseWriter, r *http.Request) {
-	session, _ := cfg.store.Get(r, "spotify-session")
+	session, err := cfg.store.Get(r, "spotify-session")
+	if err != nil {
+		util.RespondWithError(w, http.StatusBadRequest, "Couldn't decode existing spotify session", err)
+		return
+	}
 	access, ok1 := session.Values["access_token"].(string)
 	refresh, ok2 := session.Values["refresh_token"].(string)
 	expiry, ok3 := session.Values["expiry"].(time.Time)

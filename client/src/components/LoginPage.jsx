@@ -1,7 +1,6 @@
 import { Box, Button, Container, Typography } from "@mui/material";
 import { BiSolidSpeaker } from "react-icons/bi";
 import { TbVinyl } from "react-icons/tb";
-import { refreshToken, setTokens } from "../services/user";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getAndSetSpotifyUID } from "../reducers/userReducer";
@@ -13,10 +12,6 @@ const LoginPage = () => {
   const guestLogin = () => {
     console.log("being built...");
   };
-
-  useEffect(() => {
-    dispatch(getAndSetSpotifyUID());
-  });
 
   return (
     <div>

@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getSpotifyUID } from "../services/user";
+import { getSpotifyUID, logout } from "../services/user";
 
 const initialState = {
   spotifyUID: "",
@@ -12,20 +12,22 @@ const userSlice = createSlice({
     setUID(state, action) {
       return { ...state, spotifyUID: action.payload };
     },
-    logout() {
-      localStorage.removeItem("access");
-      localStorage.removeItem("refresh");
-      localStorage.removeItem("expiresAt");
+    clearState() {
       return initialState;
     },
   },
 });
 
-export const { setUID, logout } = userSlice.actions;
+export const { setUID } = userSlice.actions;
 
 export const getAndSetSpotifyUID = () => async (dispatch) => {
   const uid = await getSpotifyUID();
   dispatch(setUID(uid));
+};
+
+export const logoutAndClearUserState = () => async (dispatch) => {
+  await logout();
+  dispatch(clearState());
 };
 
 export default userSlice.reducer;

@@ -1,7 +1,7 @@
 import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { TbVinyl } from "react-icons/tb";
-import { logout } from "../reducers/userReducer";
+import { logoutAndClearUserState } from "../reducers/userReducer";
 import { Link, useNavigate } from "react-router-dom";
 
 const Nav = () => {
@@ -9,7 +9,7 @@ const Nav = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logoutAndClearUserState());
     navigate("/");
   };
 
