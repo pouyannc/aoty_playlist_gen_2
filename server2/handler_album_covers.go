@@ -38,7 +38,7 @@ type fetchAndCacheError struct {
 
 var (
 	cacheKey  = "albumCovers"
-	freshness = 0 * time.Hour //set to 0 for testing
+	freshness = 4 * time.Hour //set to 0 for testing
 )
 
 func (cfg *apiConfig) handlerAlbumCovers(w http.ResponseWriter, r *http.Request) {

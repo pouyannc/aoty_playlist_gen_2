@@ -20,10 +20,6 @@ import {
   setPlaylistId,
   setPlaylistNameGenre,
 } from "../reducers/generatedPlaylistReducer";
-import {
-  setRetrievingFalse,
-  setRetrievingTrue,
-} from "../reducers/coverArtReducer";
 import { useNavigate } from "react-router-dom";
 
 const OptionsForm = () => {
@@ -40,7 +36,6 @@ const OptionsForm = () => {
 
   const getAlbumsList = async (e) => {
     e.preventDefault();
-    dispatch(setRetrievingTrue());
     dispatch(setGeneratePlaylist(true));
     dispatch(setGeneratedNrOfTracks(0));
     dispatch(setNotEnoughTracks(false));
@@ -60,7 +55,6 @@ const OptionsForm = () => {
     const playlistID = newPlaylist.playlist_id;
     dispatch(setPlaylistId(playlistID));
     // dispatch(setGeneratedNrOfTracks(tracklist.length));
-    dispatch(setRetrievingFalse());
     dispatch(setGeneratedNrOfTracks(1));
   };
 

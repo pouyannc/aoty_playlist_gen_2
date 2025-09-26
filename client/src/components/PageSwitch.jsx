@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 
 const PageSwitch = () => {
   const playlistOptions = useSelector(({ playlistOptions }) => playlistOptions);
-
   const navigate = useNavigate();
 
   return (

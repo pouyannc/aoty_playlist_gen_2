@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
-import { getCoverUrls, setRetrievingTrue } from "../reducers/coverArtReducer";
+import { getCoverUrls } from "../reducers/coverArtReducer";
 import {
   Box,
   IconButton,
@@ -27,16 +27,11 @@ const RelevantCoverArts = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   useEffect(() => {
-    if (!coverArtUrls.retrieving) {
-      if (coverArtUrls[currentPlaylistType] === undefined) {
-        setTimeout(() => {
-          dispatch(setRetrievingTrue());
-          setOpenSnackbar(true);
-          dispatch(getCoverUrls(currentPlaylistType, currentPlaylistScrapeUrl));
-        }, 1000);
-      }
+    if (coverArtUrls[currentPlaylistType] === undefined) {
+      //setOpenSnackbar(true);
+      dispatch(getCoverUrls(currentPlaylistType, currentPlaylistScrapeUrl));
     }
-  }, [currentPlaylistType, coverArtUrls.retrieving]);
+  }, [currentPlaylistType]);
 
   return (
     <Box

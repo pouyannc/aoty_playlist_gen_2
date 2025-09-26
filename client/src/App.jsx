@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { Container } from "@mui/material";
 import Nav from "./components/Nav";
 import GenPage from "./components/GenPage";
@@ -12,15 +12,13 @@ import { getAndSetSpotifyUID } from "./reducers/userReducer";
 function App() {
   const uid = useSelector(({ user }) => user.spotifyUID);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(getAndSetSpotifyUID());
-  });
+  }, []);
 
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route
         path="/*"

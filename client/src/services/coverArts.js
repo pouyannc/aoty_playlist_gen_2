@@ -1,5 +1,4 @@
 import axios from "axios";
-import refreshSessionIfNeeded from "../util/checkAndRefreshSession";
 
 const serverUrl = import.meta.env.VITE_SERVER_URL;
 

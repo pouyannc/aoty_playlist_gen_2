@@ -1,11 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { generateScrapeURL } from "./helpers/playlistOptionsUtil";
+import { generateScrapeURL, tabTitles } from "./helpers/playlistOptionsUtil";
 
 const initialState = {
   category: "new",
   type: "new",
-  title: "New Releases",
-  description: "Generate a playlist to sample this weeks most popular releases",
+  title: tabTitles["new"].title,
+  description: tabTitles["new"].description,
   tracksPerAlbum: 2,
   nrOfTracks: 20,
   scrapeUrl: encodeURIComponent(
@@ -22,7 +22,13 @@ const playlistOptionsSlice = createSlice({
     },
     setPlaylistOptions(state, action) {
       const splitPath = action.payload.split("/");
-      const [category, type] = [splitPath[1], splitPath.slice(2).join("/")];
+      const [category, type, tab] = [
+        splitPath[1],
+        splitPath.slice(2).join("/"),
+        splitPath[2],
+      ];
+
+      const { title, description } = tabTitles[tab];
 
       let [tracksPerAlbum, nrOfTracks] = [
         state.tracksPerAlbum,
@@ -37,6 +43,8 @@ const playlistOptionsSlice = createSlice({
         ...state,
         category,
         type,
+        title,
+        description,
         tracksPerAlbum,
         nrOfTracks,
         scrapeUrl: generateScrapeURL(type),
