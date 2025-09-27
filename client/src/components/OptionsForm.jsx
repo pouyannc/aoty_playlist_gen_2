@@ -40,7 +40,7 @@ const OptionsForm = () => {
     dispatch(setGeneratedNrOfTracks(0));
     dispatch(setNotEnoughTracks(false));
 
-    let playlistName = `AOTY ${playlistInfo.title}`;
+    let playlistName = `AOTY ${playlistInfo.title} - `;
     if (generatedPlaylistInfo.name.sort !== "")
       playlistName += ` - ${generatedPlaylistInfo.name.sort} ${generatedPlaylistInfo.name.genre}`;
     const newPlaylist = await playlistService.getTracklist({
@@ -92,14 +92,12 @@ const OptionsForm = () => {
                   <MenuItem value="rock">Rock</MenuItem>
                   <MenuItem value="hiphop">Hip Hop</MenuItem>
                   <MenuItem value="electronic">Electronic</MenuItem>
-                  <MenuItem value="indierock">Indie Rock</MenuItem>
                   <MenuItem value="dance">Dance</MenuItem>
                   <MenuItem value="rb">R&B</MenuItem>
                   <MenuItem value="singersongwriter">
                     Singer-Songwriter
                   </MenuItem>
                   <MenuItem value="metal">Metal</MenuItem>
-                  <MenuItem value="trap">Trap</MenuItem>
                 </Select>
               </FormControl>
             )}

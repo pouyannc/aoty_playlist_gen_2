@@ -16,7 +16,6 @@ const month = [
   "december",
 ];
 
-//redo the genres for better ones
 const genres = {
   pop: 15,
   rock: 7,
@@ -26,8 +25,6 @@ const genres = {
   metal: 40,
   rb: 22,
   singersongwriter: 37,
-  trap: 213,
-  indierock: 1,
 };
 
 export const generateScrapeURL = (type) => {

@@ -22,6 +22,7 @@ export const { setUID } = userSlice.actions;
 
 export const getAndSetSpotifyUID = () => async (dispatch) => {
   const uid = await getSpotifyUID();
+  console.log("got spotify uid from backend");
   dispatch(setUID(uid));
 };
 

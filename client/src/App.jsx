@@ -15,7 +15,7 @@ function App() {
 
   useEffect(() => {
     dispatch(getAndSetSpotifyUID());
-  }, []);
+  }, [uid]);
 
   return (
     <Routes>
