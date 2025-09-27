@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/pouyannc/aoty_list_gen/internal/middleware"
 	"github.com/pouyannc/aoty_list_gen/internal/scrape"
 	"github.com/pouyannc/aoty_list_gen/internal/spotify"
 	"github.com/pouyannc/aoty_list_gen/util"
@@ -25,6 +26,7 @@ type scrapeParamsPlaylist struct {
 func (cfg *apiConfig) handlerPlaylist(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var rParams struct {
+		UID          string `json:"uid"`
 		PlaylistName string `json:"playlistName"`
 	}
 	err := decoder.Decode(&rParams)
@@ -66,35 +68,21 @@ func (cfg *apiConfig) handlerPlaylist(w http.ResponseWriter, r *http.Request) {
 
 	albums, _ := scrape.ScrapeAlbums(page, allScrapeURLs, qParams.filter, nAlbums)
 
-	session, err := cfg.store.Get(r, "spotify-session")
-	if err != nil {
-		util.RespondWithError(w, http.StatusInternalServerError, "Unable to get server session", err)
-		return
-	}
-	token, ok := session.Values["access_token"]
-	if !ok {
-		util.RespondWithError(w, http.StatusUnauthorized, "No access token found in user session", fmt.Errorf("no access token in session: %v", token))
-		return
-	}
-	uid, ok := session.Values["spotify_uid"]
-	if !ok {
-		util.RespondWithError(w, http.StatusUnauthorized, "No spotify uid found in user session", fmt.Errorf("no uid in session: %v", uid))
-		return
-	}
+	token := r.Context().Value(middleware.TokenKey).(string)
 
-	albumData, err := spotify.AlbumData(albums, token.(string))
+	albumData, err := spotify.AlbumData(albums, token)
 	if err != nil {
 		util.RespondWithError(w, http.StatusInternalServerError, "Couldn't get album data from Spotify", err)
 		return
 	}
 
-	trackURIs, err := spotify.GetTracklist(albumData, tracksPerInt, nTracksInt, token.(string))
+	trackURIs, err := spotify.GetTracklist(albumData, tracksPerInt, nTracksInt, token)
 	if err != nil {
 		util.RespondWithError(w, http.StatusInternalServerError, "Couldn't get track URIs from Spotify", err)
 		return
 	}
 
-	playlistID, err := spotify.CreatePlaylist(trackURIs, token.(string), uid.(string), rParams.PlaylistName)
+	playlistID, err := spotify.CreatePlaylist(trackURIs, token, rParams.UID, rParams.PlaylistName)
 	if err != nil {
 		util.RespondWithError(w, http.StatusInternalServerError, "Couldn't create or populate playlist", err)
 		return

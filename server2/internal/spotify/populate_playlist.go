@@ -10,6 +10,7 @@ import (
 
 func PopulatePlaylist(trackURIs []string, playlistID, token string) error {
 	fmt.Println("playlistID: ", playlistID)
+	fmt.Println("trackURIs: ", trackURIs)
 
 	reqURL := fmt.Sprintf("https://api.spotify.com/v1/playlists/%s/tracks", playlistID)
 	payload := struct {

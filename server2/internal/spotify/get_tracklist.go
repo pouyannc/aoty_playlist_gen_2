@@ -2,7 +2,6 @@ package spotify
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 )
@@ -29,8 +28,6 @@ func GetTracklist(albumData []SpotifyAlbum, tracksPerAlbum, nTracks int, token s
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	fmt.Println(albumIDs, len(albumIDs))
-
 	tracklist := []string{}
 	maxGetAlbumAmount := 20
 	for i := 0; i < len(albumIDs); i += maxGetAlbumAmount {
@@ -50,8 +47,8 @@ func GetTracklist(albumData []SpotifyAlbum, tracksPerAlbum, nTracks int, token s
 		}
 		defer resp.Body.Close()
 
-		var albumTracks AlbumsResp
 		decoder := json.NewDecoder(resp.Body)
+		var albumTracks AlbumsResp
 		err = decoder.Decode(&albumTracks)
 		if err != nil {
 			return []string{}, err
@@ -66,9 +63,10 @@ func GetTracklist(albumData []SpotifyAlbum, tracksPerAlbum, nTracks int, token s
 		}
 
 		if len(tracklist) >= nTracks {
+			tracklist = tracklist[:nTracks]
 			break
 		}
 	}
 
-	return tracklist[:nTracks], nil
+	return tracklist, nil
 }

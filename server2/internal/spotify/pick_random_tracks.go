@@ -25,6 +25,5 @@ func pickNRandomTracks(tracks []struct{ URI string }, n int) ([]string, error) {
 	for _, track := range tracks[:n] {
 		randomTracks = append(randomTracks, track.URI)
 	}
-
 	return randomTracks, nil
 }
