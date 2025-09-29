@@ -1,20 +1,19 @@
-# AOTY Playlist generator (1.2.1)
+# AOTY Playlist generator (2.0)
 
 Generate playlists compiled from the most talked about albums over at aoty.org.
 
-Go here to use the app: https://aoty-playlist-gen-2a2168969963.herokuapp.com/  
+Customize your playlist through several options such as genre, track length, and album diversity. A preview of each playlist type is given. Logging in using Spotify requires your account to be whitelisted since the app is not in extended quota mode. Generated playlists are linked and can be added to your library.
 
-Customize your playlist through several options such as genre, track length, and album diversity. A preview of each playlist type is given. Logging in using Spotify is disabled until a Quota Extension is approved. Generated playlists are linked and can be added to your library.
+### Run Locally:
 
-Future additions: 
-- Login to Spotify and directly create playlist on your account
-- Generate list based on time periods (decades)
-- Undo playlist
+Requires Docker Compose. Clone the repo, cd into the project directory and run:
 
-1.2.1: Bug fix for recent months tab.
+```bash
+docker compose up
+```
 
-1.2: Ability to use the app without a Spotify login. Requires user to add the generated playlist to their Spotify library if they want to keep it. Removed logging in with Spotify due to the app not yet being in extended quote mode.
+Access the app by navigating to localhost:5731 in your browser
 
-1.1: Refactor to optimize performance by handling some operations through Spotify API requests instead of scrapes.
+### Work in progress:
 
-
+2.0 involves switching the backend from node.js to Go to utilize preformance optimizations from a compiled language as well as go routines (concurrency). Caching and containerization has been implemented for better performance and ease of deployment. This transition is still in progress and will be deployed afterwards. Upcoming features include generating playlists based on decade time periods, and server queue implementations for better optimization.
