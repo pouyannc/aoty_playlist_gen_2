@@ -86,6 +86,7 @@ func main() {
 
 	r.HandleFunc("/api/login", cfg.handlerLogin).Methods("GET")
 	r.HandleFunc("/api/login/callback", cfg.handlerLoginCallback).Methods("GET")
+	r.HandleFunc("/api/login/guest", cfg.handlerLoginGuest).Methods("GET")
 	r.HandleFunc("/api/auth/tokens", cfg.handlerAuthTokens).Methods("GET")
 	r.HandleFunc("/api/logout", cfg.handlerLogout).Methods("DELETE")
 

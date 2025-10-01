@@ -1,16 +1,17 @@
 import { Box, Button, Container, Typography } from "@mui/material";
 import { BiSolidSpeaker } from "react-icons/bi";
 import { TbVinyl } from "react-icons/tb";
-import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { loginGuest } from "../services/user";
 import { getAndSetSpotifyUID } from "../reducers/userReducer";
 
 const LoginPage = () => {
   const serverUrl = import.meta.env.VITE_SERVER_URL;
   const dispatch = useDispatch();
 
-  const guestLogin = () => {
-    console.log("being built...");
+  const handleGuestLogin = async () => {
+    await loginGuest();
+    dispatch(getAndSetSpotifyUID());
   };
 
   return (
@@ -49,8 +50,8 @@ const LoginPage = () => {
         </Typography>
         <Typography variant="h6">
           The current version of this app can be used without linking a Spotify
-          account. Logging in with Spotify will be reenabled once the app enters
-          extended quota.
+          account. Logging in with Spotify requires your account to be
+          whitelisted, due to the app not being in extended quota yet.
         </Typography>
         <Button
           href={`${serverUrl}/login`}
@@ -67,7 +68,7 @@ const LoginPage = () => {
         <Button
           variant="contained"
           sx={{ fontWeight: 700, width: "40%", alignSelf: "center" }}
-          onClick={guestLogin}
+          onClick={handleGuestLogin}
         >
           Enter without login
         </Button>

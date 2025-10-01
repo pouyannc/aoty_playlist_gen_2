@@ -1,27 +1,6 @@
 import axios from "axios";
-import saveSessionExpiry from "../util/saveSessionExpiry";
-import { setUID } from "../reducers/userReducer";
 
 const serverURL = import.meta.env.VITE_SERVER_URL;
-
-let tokens;
-
-const setTokens = (access, refresh) => {
-  tokens = {
-    accessToken: `Bearer ${access}`,
-    refreshToken: refresh,
-  };
-  localStorage.setItem("access", access);
-  localStorage.setItem("refresh", refresh);
-};
-
-const refreshToken = async () => {
-  const res = await axios.get(`${serverURL}/login/refresh}`, {
-    withCredentials: true,
-  });
-  setTokens(res.data.access_token, tokens.refreshToken);
-  saveSessionExpiry(res.data.expires_in);
-};
 
 const getSpotifyUID = async () => {
   try {
@@ -35,6 +14,16 @@ const getSpotifyUID = async () => {
   }
 };
 
+const loginGuest = async () => {
+  try {
+    await axios.get(`${serverURL}/login/guest`, {
+      withCredentials: true,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const logout = async () => {
   try {
     await axios.delete(`${serverURL}/logout`, {
@@ -45,4 +34,4 @@ const logout = async () => {
   }
 };
 
-export { setTokens, refreshToken, getSpotifyUID, logout };
+export { getSpotifyUID, loginGuest, logout };

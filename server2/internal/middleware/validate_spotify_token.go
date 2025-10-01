@@ -47,7 +47,7 @@ func ValidateSpotifyToken(store *sessions.CookieStore) func(http.Handler) http.H
 				return
 			}
 			if time.Now().After(expiry.(time.Time)) {
-				tokens, err := refreshAndGetTokens(refreshToken.(string))
+				tokens, err := RefreshAndGetTokens(refreshToken.(string))
 				if err != nil {
 					util.RespondWithError(w, http.StatusInternalServerError, "Couldn't refresh tokens", err)
 					return
@@ -75,7 +75,7 @@ func ValidateSpotifyToken(store *sessions.CookieStore) func(http.Handler) http.H
 	}
 }
 
-func refreshAndGetTokens(refreshToken string) (TokenResp, error) {
+func RefreshAndGetTokens(refreshToken string) (TokenResp, error) {
 	tokenURL := "https://accounts.spotify.com/api/token"
 
 	formData := url.Values{}

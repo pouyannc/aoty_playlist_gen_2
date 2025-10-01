@@ -5,7 +5,6 @@ import Nav from "./components/Nav";
 import GenPage from "./components/GenPage";
 import LoginPage from "./components/LoginPage";
 import AboutPage from "./components/AboutPage";
-import AuthCallback from "./components/AuthCallback";
 import { useEffect } from "react";
 import { getAndSetSpotifyUID } from "./reducers/userReducer";
 
@@ -15,11 +14,10 @@ function App() {
 
   useEffect(() => {
     dispatch(getAndSetSpotifyUID());
-  }, [uid]);
+  }, []);
 
   return (
     <Routes>
-      <Route path="/auth/callback" element={<AuthCallback />} />
       <Route
         path="/*"
         element={
