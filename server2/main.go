@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/gob"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -31,17 +32,20 @@ func main() {
 	gob.Register(time.Time{})
 
 	_ = godotenv.Load()
-	port := os.Getenv("PORT")
-	if port == "" {
-		log.Fatal("error loading .env (port is empty)")
-	}
+	// port := os.Getenv("PORT")
+	// if port == "" {
+	// 	log.Fatal("error loading .env (port is empty)")
+	// }
 
-	//redisAddr := os.Getenv("REDIS_ADDR")
-	redisAddr := ":6379" //for dev
-	rdb := redis.NewClient(&redis.Options{
-		Addr: redisAddr,
-		DB:   0,
-	})
+	redisAddr := os.Getenv("REDIS_ADDR")
+	fmt.Println("redis address:", redisAddr)
+	//redisAddr := ":6379" //for dev
+
+	opt, err := redis.ParseURL(redisAddr)
+	if err != nil {
+		log.Fatalf("Invalid REDIS_ADDR: %v", err)
+	}
+	rdb := redis.NewClient(opt)
 	if err := rdb.Ping(context.Background()).Err(); err != nil {
 		log.Fatalf("failed to connect to redis at %s: %v", redisAddr, err)
 	}
@@ -58,8 +62,8 @@ func main() {
 	store.Options = &sessions.Options{
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteLaxMode,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
 	}
 
 	u := launcher.
@@ -96,17 +100,17 @@ func main() {
 	albumsSubrouter.Use(middleware.ValidateSpotifyToken(cfg.store))
 
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173"}, // React dev server
+		AllowedOrigins:   []string{os.Getenv("CLIENT_URL")},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
 	}).Handler(r)
 
 	server := &http.Server{
-		Addr:    ":" + port,
+		Addr:    ":8080",
 		Handler: corsHandler,
 	}
 
-	log.Printf("Server running: http://localhost%v", server.Addr)
+	log.Printf("Server running: port %v", server.Addr)
 	log.Fatal(server.ListenAndServe())
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/pouyannc/aoty_list_gen/internal/spotify"
@@ -40,5 +41,6 @@ func (cfg *apiConfig) handlerLoginCallback(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	http.Redirect(w, r, "http://localhost:5173/", http.StatusFound)
+	clientURL := os.Getenv("CLIENT_URL")
+	http.Redirect(w, r, clientURL, http.StatusFound)
 }

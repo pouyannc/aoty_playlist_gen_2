@@ -14,8 +14,8 @@ const getCoverArts = async (type, scrapeUrl) => {
     );
     return res.data;
   } catch (error) {
-    console.log(error);
-    return error;
+    console.log("Couldn't get album covers:", error);
+    return;
   }
 };
 
