@@ -23,7 +23,6 @@ func (cfg *apiConfig) handlerLoginGuest(w http.ResponseWriter, r *http.Request) 
 		util.RespondWithError(w, http.StatusInternalServerError, "Couldn't get spotify UID", err)
 		return
 	}
-
 	session, err := cfg.store.Get(r, "spotify-session")
 	if err != nil {
 		util.RespondWithError(w, http.StatusInternalServerError, "Couldn't get or create server spotify-session", err)
@@ -38,8 +37,6 @@ func (cfg *apiConfig) handlerLoginGuest(w http.ResponseWriter, r *http.Request) 
 		util.RespondWithError(w, http.StatusInternalServerError, "Couldn't save server session", err)
 		return
 	}
-
-	//http.Redirect(w, r, "http://localhost:5173/", http.StatusFound)
 
 	util.RespondWithJSON(w, http.StatusOK, struct{}{})
 }

@@ -30,7 +30,11 @@ func (cfg *apiConfig) handlerLoginCallback(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	session, _ := cfg.store.Get(r, "spotify-session")
+	session, err := cfg.store.Get(r, "spotify-session")
+	if err != nil {
+		util.RespondWithError(w, http.StatusInternalServerError, "Couldn't get or create server spotify-session", err)
+		return
+	}
 	session.Values["access_token"] = token.AccessToken
 	session.Values["refresh_token"] = token.RefreshToken
 	session.Values["expiry"] = time.Now().Add(time.Duration(token.ExpiresIn) * time.Second)

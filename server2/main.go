@@ -16,7 +16,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/pouyannc/aoty_list_gen/internal/middleware"
 	"github.com/redis/go-redis/v9"
-	"github.com/rs/cors"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/spotify"
 )
@@ -26,6 +25,11 @@ type apiConfig struct {
 	store       *sessions.CookieStore
 	browser     *rod.Browser
 	rdb         *redis.Client
+}
+
+type spaHandler struct {
+	staticPath string
+	indexPath  string
 }
 
 func main() {
@@ -86,6 +90,11 @@ func main() {
 		rdb:         rdb,
 	}
 
+	spa := spaHandler{
+		staticPath: "dist",
+		indexPath:  "index.html",
+	}
+
 	r := mux.NewRouter()
 
 	r.HandleFunc("/api/login", cfg.handlerLogin).Methods("GET")
@@ -99,16 +108,19 @@ func main() {
 	albumsSubrouter.HandleFunc("/playlist", cfg.handlerPlaylist).Methods("POST")
 	albumsSubrouter.Use(middleware.ValidateSpotifyToken(cfg.store))
 
-	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   []string{os.Getenv("CLIENT_URL")},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Content-Type", "Authorization"},
-		AllowCredentials: true,
-	}).Handler(r)
+	r.PathPrefix("/").Handler(spa)
+
+	// corsHandler := cors.New(cors.Options{
+	// 	AllowedOrigins:   []string{os.Getenv("CLIENT_URL")},
+	// 	AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+	// 	AllowedHeaders:   []string{"Content-Type", "Authorization"},
+	// 	AllowCredentials: true,
+	// }).Handler(r)
+	// Old CORS code, used for SPA being run on separate server
 
 	server := &http.Server{
 		Addr:    ":8080",
-		Handler: corsHandler,
+		Handler: r,
 	}
 
 	log.Printf("Server running: port %v", server.Addr)

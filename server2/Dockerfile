@@ -17,6 +17,7 @@ RUN apk add --no-cache bind-tools chromium ca-certificates
 
 
 COPY --from=build /app/server .
+COPY dist ./dist
 ENV PORT=8080
 
 EXPOSE 8080
