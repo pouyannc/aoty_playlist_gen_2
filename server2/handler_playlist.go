@@ -1,13 +1,13 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/pouyannc/aoty_list_gen/internal/middleware"
-	"github.com/pouyannc/aoty_list_gen/internal/scrape"
 	"github.com/pouyannc/aoty_list_gen/internal/spotify"
 	"github.com/pouyannc/aoty_list_gen/util"
 )
@@ -17,10 +17,9 @@ type PlaylistData struct {
 }
 
 type scrapeParamsPlaylist struct {
-	scrapeURL      string
+	scrapeKey      string
 	nTracks        int
 	tracksPerAlbum int
-	filter         string
 }
 
 func (cfg *apiConfig) handlerPlaylist(w http.ResponseWriter, r *http.Request) {
@@ -47,30 +46,31 @@ func (cfg *apiConfig) handlerPlaylist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	qParams := scrapeParamsPlaylist{
-		scrapeURL:      query.Get("scrape_url"),
+		scrapeKey:      query.Get("scrape_key"),
 		nTracks:        nTracksInt,
 		tracksPerAlbum: tracksPerInt,
-		filter:         query.Get("type"),
 	}
 
 	fmt.Println("REQUEST QUERY PARAMS:", qParams)
 
 	nAlbums := (qParams.nTracks / qParams.tracksPerAlbum) + 1
 
-	allScrapeURLs, err := scrape.CreateAllScrapeURLs(qParams.scrapeURL, qParams.filter)
+	key := fmt.Sprintf("%s:%s", cacheScrapeKey, qParams.scrapeKey)
+	cacheValue, err := cfg.rdb.Get(context.Background(), key).Result()
 	if err != nil {
-		util.RespondWithError(w, http.StatusInternalServerError, "failed to create scrape urls", err)
+		util.RespondWithError(w, http.StatusInternalServerError, "Failed to retrieve redis album data", err)
 		return
 	}
 
-	page := cfg.browser.MustPage("https://www.albumoftheyear.org/")
-	defer page.MustClose()
-
-	_, _ = scrape.ScrapeAlbums(page, allScrapeURLs, qParams.filter, nAlbums)
+	var payload cacheScrapePayload
+	err = json.Unmarshal([]byte(cacheValue), &payload)
+	if err != nil {
+		util.RespondWithError(w, http.StatusInternalServerError, "Couldn't unmarshal cache scrape payload", err)
+	}
 
 	token := r.Context().Value(middleware.TokenKey).(string)
 
-	albumData, err := spotify.AlbumData([]*cacheAlbumScrape{}, token, nAlbums)
+	albumData, err := spotify.AlbumData(payload.ScrapeAlbums, token, nAlbums)
 	if err != nil {
 		util.RespondWithError(w, http.StatusInternalServerError, "Couldn't get album data from Spotify", err)
 		return

@@ -40,7 +40,7 @@ const OptionsForm = () => {
     dispatch(setGeneratedNrOfTracks(0));
     dispatch(setNotEnoughTracks(false));
 
-    let playlistName = `AOTY ${playlistInfo.title} - `;
+    let playlistName = `AOTY ${playlistInfo.title}`;
     if (generatedPlaylistInfo.name.sort !== "")
       playlistName += ` - ${generatedPlaylistInfo.name.sort} ${generatedPlaylistInfo.name.genre}`;
     const newPlaylist = await playlistService.getTracklist({
