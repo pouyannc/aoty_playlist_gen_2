@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -26,8 +25,6 @@ func (cfg *apiConfig) handlerAuthTokens(w http.ResponseWriter, r *http.Request) 
 	refresh, ok2 := session.Values["refresh_token"].(string)
 	expiry, ok3 := session.Values["expiry"].(time.Time)
 	uid, ok4 := session.Values["spotify_uid"].(string)
-
-	fmt.Println("Cookie data:", access, refresh, expiry, uid)
 
 	if !ok1 || !ok2 || !ok3 || !ok4 {
 		util.RespondWithError(w, http.StatusUnauthorized, "User unauthorized", errors.New("tokens not found in session"))

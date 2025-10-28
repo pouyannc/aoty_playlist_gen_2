@@ -28,6 +28,7 @@ func ScrapeAlbums(page *rod.Page, scrapeURLs []string, filter string, nAlbums in
 		}
 
 		log.Printf("Current number of pages running in browser: %v\n", len(page.Browser().MustPages()))
+		log.Printf("Page html: %v\n", page.MustHTML()[:400])
 		err = page.Timeout(2000*time.Millisecond).WaitElementsMoreThan(".albumBlock", 0)
 		if err != nil {
 			nErr++

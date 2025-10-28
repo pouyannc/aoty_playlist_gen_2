@@ -17,12 +17,9 @@ const coverArtSlice = createSlice({
 export const { setCoverUrls } = coverArtSlice.actions;
 
 export const getCoverUrls =
-  (playlistType, playlistScrapeUrl) => async (dispatch) => {
+  (playlistType, playlistScrapeKey) => async (dispatch) => {
     dispatch(setCoverUrls({ type: playlistType, coverUrls: true }));
-    const coverUrls = await coverArtsService.getCoverArts(
-      playlistType,
-      playlistScrapeUrl
-    );
+    const coverUrls = await coverArtsService.getCoverArts(playlistScrapeKey);
     dispatch(setCoverUrls({ type: playlistType, coverUrls }));
   };
 

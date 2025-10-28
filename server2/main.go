@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/gob"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -16,6 +15,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/pouyannc/aoty_list_gen/internal/middleware"
 	"github.com/redis/go-redis/v9"
+	"github.com/rs/cors"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/spotify"
 )
@@ -32,18 +32,28 @@ type spaHandler struct {
 	indexPath  string
 }
 
+var cacheScrapeKey = "albumScrapeData"
+
+type cacheAlbumScrape struct {
+	Title  string `json:"title"`
+	Artist string `json:"artist"`
+}
+
+func (albScrape cacheAlbumScrape) GetTitleArtist() (string, string) {
+	return albScrape.Title, albScrape.Artist
+}
+
+type cacheScrapePayload struct {
+	ScrapeAlbums []*cacheAlbumScrape `json:"scrape_albums"`
+	Ts           int64               `json:"ts"`
+}
+
 func main() {
 	gob.Register(time.Time{})
 
 	_ = godotenv.Load()
-	// port := os.Getenv("PORT")
-	// if port == "" {
-	// 	log.Fatal("error loading .env (port is empty)")
-	// }
 
 	redisAddr := os.Getenv("REDIS_ADDR")
-	fmt.Println("redis address:", redisAddr)
-	//redisAddr := ":6379" //for dev
 
 	opt, err := redis.ParseURL(redisAddr)
 	if err != nil {
@@ -110,17 +120,17 @@ func main() {
 
 	r.PathPrefix("/").Handler(spa)
 
-	// corsHandler := cors.New(cors.Options{
-	// 	AllowedOrigins:   []string{os.Getenv("CLIENT_URL")},
-	// 	AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-	// 	AllowedHeaders:   []string{"Content-Type", "Authorization"},
-	// 	AllowCredentials: true,
-	// }).Handler(r)
-	// Old CORS code, used for SPA being run on separate server
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{os.Getenv("CLIENT_URL")},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	}).Handler(r)
+	// dev CORS code, used for SPA being run on separate server
 
 	server := &http.Server{
 		Addr:    ":8080",
-		Handler: r,
+		Handler: corsHandler,
 	}
 
 	log.Printf("Server running: port %v", server.Addr)

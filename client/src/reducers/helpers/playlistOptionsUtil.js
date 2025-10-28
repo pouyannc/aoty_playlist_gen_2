@@ -1,22 +1,8 @@
 const d = new Date();
 const currentYear = d.getFullYear();
-const currentMonthDigit = d.getMonth();
-const month = [
-  "january",
-  "february",
-  "march",
-  "april",
-  "may",
-  "june",
-  "july",
-  "august",
-  "september",
-  "october",
-  "november",
-  "december",
-];
 
-const genres = {
+const genreCodes = {
+  all: 0,
   pop: 15,
   rock: 7,
   hiphop: 3,
@@ -27,34 +13,15 @@ const genres = {
   singersongwriter: 37,
 };
 
-export const generateScrapeURL = (type) => {
-  const [time, sort, genre] = type.split("/");
+const currentYearKeySegment = "year";
 
-  const baseURL = "https://www.albumoftheyear.org";
+export const generateScrapeKey = (type) => {
+  let [time, sort, genre] = type.split("/");
 
-  let monthSegment = "";
-  if (time === "months") {
-    monthSegment = `${month[currentMonthDigit]}-${(currentMonthDigit + 1)
-      .toString()
-      .padStart(2, "0")}.php`;
-  }
+  if (time === currentYear.toString()) time = currentYearKeySegment;
+  genre = genreCodes[genre].toString();
 
-  const relativePath = `/${currentYear}/releases/${monthSegment}`;
-  const scrapeURL = new URL(relativePath, baseURL);
-
-  scrapeURL.searchParams.append("type", "lp");
-  if (sort === "must-hear") {
-    scrapeURL.searchParams.append("sort", "user");
-    scrapeURL.searchParams.append("reviews", "500");
-  }
-
-  if (genre !== "all") {
-    const genreParam = genres[genre.toLowerCase()];
-    scrapeURL.searchParams.append("genre", genreParam);
-    scrapeURL.searchParams.set("review", "100");
-  }
-
-  return encodeURIComponent(scrapeURL.href);
+  return [time, sort, genre].join("/");
 };
 
 export const tabTitles = {

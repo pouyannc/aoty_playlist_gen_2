@@ -13,7 +13,6 @@ const GenPage = () => {
   const location = useLocation();
 
   const currentPathname = location.pathname;
-  console.log(currentPathname);
   if (currentPathname === "/") dispatch(initNew());
   else dispatch(setPlaylistOptions(currentPathname));
 

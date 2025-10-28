@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { generateScrapeURL, tabTitles } from "./helpers/playlistOptionsUtil";
+import { generateScrapeKey, tabTitles } from "./helpers/playlistOptionsUtil";
 
 const initialState = {
   category: "new",
@@ -8,9 +8,7 @@ const initialState = {
   description: tabTitles["new"].description,
   tracksPerAlbum: 2,
   nrOfTracks: 20,
-  scrapeUrl: encodeURIComponent(
-    "https://www.albumoftheyear.org/releases/this-week/"
-  ),
+  scrapeKey: "new",
 };
 
 const playlistOptionsSlice = createSlice({
@@ -47,7 +45,7 @@ const playlistOptionsSlice = createSlice({
         description,
         tracksPerAlbum,
         nrOfTracks,
-        scrapeUrl: generateScrapeURL(type),
+        scrapeKey: generateScrapeKey(type),
       };
     },
     setTracksPerAlbum(state, action) {

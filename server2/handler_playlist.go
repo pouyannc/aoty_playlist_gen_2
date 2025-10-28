@@ -66,11 +66,11 @@ func (cfg *apiConfig) handlerPlaylist(w http.ResponseWriter, r *http.Request) {
 	page := cfg.browser.MustPage("https://www.albumoftheyear.org/")
 	defer page.MustClose()
 
-	albums, _ := scrape.ScrapeAlbums(page, allScrapeURLs, qParams.filter, nAlbums)
+	_, _ = scrape.ScrapeAlbums(page, allScrapeURLs, qParams.filter, nAlbums)
 
 	token := r.Context().Value(middleware.TokenKey).(string)
 
-	albumData, err := spotify.AlbumData(albums, token)
+	albumData, err := spotify.AlbumData([]*cacheAlbumScrape{}, token, nAlbums)
 	if err != nil {
 		util.RespondWithError(w, http.StatusInternalServerError, "Couldn't get album data from Spotify", err)
 		return

@@ -9,8 +9,6 @@ import (
 	"net/url"
 	"strings"
 	"sync"
-
-	"github.com/pouyannc/aoty_list_gen/internal/scrape"
 )
 
 type SpotifySearchResp struct {
@@ -34,28 +32,41 @@ type SpotifyAlbum struct {
 	Artist   string
 }
 
-func AlbumData(albums []*scrape.Album, token string) ([]SpotifyAlbum, error) {
+type AlbumScrapeData interface {
+	GetTitleArtist() (string, string)
+}
+
+func AlbumData[T AlbumScrapeData](albums []*T, token string, nMaxAlbums int) ([]SpotifyAlbum, error) {
+	nAlbumSearchBuffer := 3
 
 	baseURL := "https://api.spotify.com/v1/search"
 
 	spotifyAlbumData := []SpotifyAlbum{}
+
+	nAlbums := 0
 
 	//var mu sync.Mutex
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 8)
 
 	for _, album := range albums {
+		if nAlbums >= nMaxAlbums+nAlbumSearchBuffer {
+			break
+		}
 		if album == nil {
 			continue
 		}
+		nAlbums++
 		wg.Add(1)
 		sem <- struct{}{}
 
-		go func(alb scrape.Album) {
+		go func(alb T) {
 			defer wg.Done()
 			defer func() { <-sem }()
 
-			q := url.QueryEscape(alb.Title + " " + alb.Artist)
+			albumTitle, albumArtist := alb.GetTitleArtist()
+
+			q := url.QueryEscape(albumTitle + " " + albumArtist)
 			searchURL := fmt.Sprintf(
 				"%s?type=album&limit=2&q=%s",
 				baseURL,
@@ -89,17 +100,17 @@ func AlbumData(albums []*scrape.Album, token string) ([]SpotifyAlbum, error) {
 			}
 
 			for _, searchItem := range result.Albums.Items {
-				titleCompare := strings.EqualFold(searchItem.Name[0:1], album.Title[0:1]) &&
-					strings.EqualFold(searchItem.Name[len(searchItem.Name)-1:], album.Title[len(album.Title)-1:])
-				artistCompare := strings.EqualFold(searchItem.Artists[0].Name[0:1], album.Artist[0:1]) &&
-					strings.EqualFold(searchItem.Artists[0].Name[len(searchItem.Artists[0].Name)-1:], album.Artist[len(album.Artist)-1:])
+				titleCompare := strings.EqualFold(searchItem.Name[0:1], albumTitle[0:1]) &&
+					strings.EqualFold(searchItem.Name[len(searchItem.Name)-1:], albumTitle[len(albumTitle)-1:])
+				artistCompare := strings.EqualFold(searchItem.Artists[0].Name[0:1], albumArtist[0:1]) &&
+					strings.EqualFold(searchItem.Artists[0].Name[len(searchItem.Artists[0].Name)-1:], albumArtist[len(albumArtist)-1:])
 
 				if titleCompare && artistCompare {
 					//mu.Lock()
 					spotifyAlbumData = append(spotifyAlbumData, SpotifyAlbum{
 						AlbumID:  searchItem.ID,
 						CoverURL: searchItem.Images[1].URL,
-						Artist:   album.Artist,
+						Artist:   albumArtist,
 					})
 					//mu.Unlock()
 					break

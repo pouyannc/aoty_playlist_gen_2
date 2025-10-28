@@ -18,8 +18,8 @@ const RelevantCoverArts = () => {
   const currentPlaylistType = useSelector(
     ({ playlistOptions }) => playlistOptions.type
   );
-  const currentPlaylistScrapeUrl = useSelector(
-    ({ playlistOptions }) => playlistOptions.scrapeUrl
+  const currentPlaylistScrapeKey = useSelector(
+    ({ playlistOptions }) => playlistOptions.scrapeKey
   );
   const coverArtUrls = useSelector(({ coverArtUrls }) => coverArtUrls);
   const dispatch = useDispatch();
@@ -29,7 +29,7 @@ const RelevantCoverArts = () => {
   useEffect(() => {
     if (coverArtUrls[currentPlaylistType] === undefined) {
       //setOpenSnackbar(true);
-      dispatch(getCoverUrls(currentPlaylistType, currentPlaylistScrapeUrl));
+      dispatch(getCoverUrls(currentPlaylistType, currentPlaylistScrapeKey));
     }
   }, [currentPlaylistType]);
 
