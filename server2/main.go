@@ -8,8 +8,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-rod/rod"
-	"github.com/go-rod/rod/lib/launcher"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
@@ -23,7 +21,6 @@ import (
 type apiConfig struct {
 	oauthConfig *oauth2.Config
 	store       *sessions.CookieStore
-	browser     *rod.Browser
 	rdb         *redis.Client
 }
 
@@ -80,23 +77,9 @@ func main() {
 		SameSite: http.SameSiteNoneMode,
 	}
 
-	u := launcher.
-		NewUserMode().
-		Headless(true).
-		Leakless(true).
-		UserDataDir("tmp/t").
-		Set("disable-default-apps").
-		Set("no-first-run").
-		Set("disable-gpu").
-		NoSandbox(true).
-		MustLaunch()
-	browser := rod.New().ControlURL(u).MustConnect()
-	defer browser.MustClose()
-
 	cfg := apiConfig{
 		oauthConfig: oauthConfig,
 		store:       store,
-		browser:     browser,
 		rdb:         rdb,
 	}
 
